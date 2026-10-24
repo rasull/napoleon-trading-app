@@ -1,4 +1,4 @@
-const CACHE_NAME = 'napoleon-hill-16-laws-v14';
+const CACHE_NAME = 'napoleon-hill-16-laws-v16';
 const ASSETS = [
   './',
   './index.html',
