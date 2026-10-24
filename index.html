@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#090D16" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>منظومة قوانين النجاح الـ 16 - نابليون هيل</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="./css/styles.css?v=6" />
+</head>
+<body>
+
+  <div class="app-layout">
+    <!-- ==================== القائمة الجانبية (Desktop Sidebar) ==================== -->
+    <aside class="sidebar">
+      <div class="brand-header">
+        <div class="brand-emblem">16</div>
+        <div class="brand-titles">
+          <h1>فلسفة النجاح</h1>
+          <p>نابليون هيل • القوانين الـ 16</p>
+        </div>
+      </div>
+
+      <!-- بطاقة مستوى المستخدم في القائمة الجانبية -->
+      <div class="sidebar-profile">
+        <div class="profile-top">
+          <div class="rank-badge">
+            <span id="sidebarRankIcon">🌱</span>
+            <span id="sidebarRankTitle">طالب فلسفة النجاح</span>
+          </div>
+          <span class="streak-pill" id="sidebarStreak">🔥 0 يوم</span>
+        </div>
+        <div class="xp-bar-container">
+          <div class="xp-bar-fill" id="sidebarXpFill" style="width: 10%;"></div>
+        </div>
+        <div class="xp-meta">
+          <span id="sidebarXpText">0 XP</span>
+          <span id="sidebarNextRankText">المستوى التالي: 150 XP</span>
+        </div>
+      </div>
+
+      <!-- أزرار التنقل بين الأقسام الستة -->
+      <nav class="nav-menu">
+        <button class="nav-item active" data-view="dashboard" onclick="App.switchView('dashboard')">
+          <span class="nav-icon">📊</span>
+          <span>لوحة التحكم والرادار</span>
+        </button>
+        <button class="nav-item" data-view="laws" onclick="App.switchView('laws')">
+          <span class="nav-icon">🏛️</span>
+          <span>موسوعة القوانين الـ 16</span>
+        </button>
+        <button class="nav-item" data-view="aim" onclick="App.switchView('aim')">
+          <span class="nav-icon">🎯</span>
+          <span>الهدف الرئيسي وفكر تصبح غنياً</span>
+        </button>
+        <button class="nav-item" data-view="quiz" onclick="App.switchView('quiz')">
+          <span class="nav-icon">🧭</span>
+          <span>التقييم الذاتي والتشخيص</span>
+        </button>
+        <button class="nav-item" data-view="habits" onclick="App.switchView('habits')">
+          <span class="nav-icon">⚡</span>
+          <span>البرنامج اليومي والتركيز</span>
+        </button>
+        <button class="nav-item" data-view="trading" onclick="App.switchView('trading')">
+          <span class="nav-icon">📈</span>
+          <span>غرفة التداول المنضبط</span>
+        </button>
+        <button class="nav-item" data-view="agent" onclick="App.switchView('agent')">
+          <span class="nav-icon">🤖</span>
+          <span>المرشد النفسي الذكي (AI)</span>
+        </button>
+        <button class="nav-item" data-view="lab" onclick="App.switchView('lab')">
+          <span class="nav-icon">🧪</span>
+          <span>المختبر العملي والعقل المدبر</span>
+        </button>
+      </nav>
+
+      <!-- تذييل القائمة الجانبية: المزامنة مع Google Drive والنسخ الاحتياطي -->
+      <div class="sidebar-footer">
+        <button class="cloud-sync-btn" onclick="App.openSyncModal()">
+          <span class="sync-status-dot" id="syncDot"></span>
+          <span id="syncBtnLabel">مزامنة Google Drive والحفظ</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ==================== المحتوى الرئيسي ==================== -->
+    <main class="main-content">
+      <!-- الشريط العلوي -->
+      <header class="top-header">
+        <div class="page-title-group">
+          <h2 id="currentViewTitle">📊 لوحة التحكم الشاملة</h2>
+          <p id="currentViewSubtitle">نظرة متكاملة على توازنك في قوانين النجاح الستة عشر وعاداتك اليومية</p>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-gold btn-sm" onclick="App.openNotificationsModal()">
+            <span>🔔</span>
+            <span id="topNotifBtnLabel">المنبهات والإشعارات</span>
+          </button>
+          <button class="btn btn-outline-gold btn-sm" onclick="App.openFocusMeditation()">
+            <span>🧘‍♂️</span>
+            <span>جلسة الإيحاء الذاتي</span>
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="App.openSyncModal()" id="topSyncBtn">
+            <span id="topSyncIcon">☁️</span>
+            <span id="topSyncBtnLabel">المزامنة السحابية والجوال</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- =================================================================
+           1. قسم لوحة التحكم (Dashboard View)
+           ================================================================= -->
+      <section id="view-dashboard" class="view-section active">
+        <!-- حكمة اليوم من نابليون هيل -->
+        <div class="quote-banner">
+          <div class="quote-text" id="dailyQuoteText">
+            "كل ما يمكن لعقل الإنسان أن يتصوره ويؤمن به، يمكنه تحقيقه بالتصميم والعمل المنظم."
+          </div>
+          <div class="quote-author">
+            <span id="dailyQuoteSource">— نابليون هيل • قانون النجاح</span>
+            <button class="btn btn-outline-gold btn-sm" onclick="App.nextRandomQuote()">🔄 حكمة أخرى</button>
+          </div>
+        </div>
+
+        <!-- الإحصائيات الأربعة -->
+        <div class="grid-4" style="margin-bottom: 24px;">
+          <div class="stat-card">
+            <div class="stat-icon">👑</div>
+            <div class="stat-info">
+              <h4 id="statTotalXP">0 XP</h4>
+              <p id="statRankName">طالب فلسفة النجاح</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-info">
+              <h4 id="statStreakDays">0 يوم</h4>
+              <p>سلسلة الالتزام اليومي</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🧭</div>
+            <div class="stat-info">
+              <h4 id="statMasteryAvg">50%</h4>
+              <p>متوسط إتقان القوانين الـ 16</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+              <h4 id="statActionsDone">0 / 64</h4>
+              <p>خطوات عملية مطبقة</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- الصف الرئيسي: رادار النجاح + الهدف الرئيسي وعادات اليوم -->
+        <div class="grid-2" style="margin-bottom: 24px;">
+          <!-- رادار القوانين الـ 16 -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🕸️ رادار التوازن في القوانين الـ 16</div>
+              <button class="btn btn-outline-gold btn-sm" onclick="App.switchView('quiz')">تحديث التقييم</button>
+            </div>
+            <div class="radar-wrapper">
+              <canvas id="radarChart" width="440" height="390"></canvas>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); text-align: center; margin-top: 8px;">
+              يتحدث هذا الرادار تلقائياً بناءً على نتائج التقييم الذاتي والخطوات العملية التي تنجزها في كل قانون.
+            </p>
+          </div>
+
+          <!-- العمود الأيسر: الهدف الرئيسي + عادات اليوم -->
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- بطاقة الهدف الرئيسي المحدد السريعة -->
+            <div class="card card-gold">
+              <div class="card-header">
+                <div class="card-title">🎯 هدفي الرئيسي المحدد (Law #2)</div>
+                <button class="btn btn-ghost btn-sm" onclick="App.switchView('aim')">تعديل العهد</button>
+              </div>
+              <div id="dashboardAimPreview" style="font-family: 'Amiri', serif; font-size: 1.18rem; color: var(--gold-light); line-height: 1.7; margin-bottom: 14px; padding: 12px; background: rgba(0,0,0,0.25); border-radius: 10px; border-right: 3px solid var(--gold-primary);">
+                لم تقم بصياغة وثيقة هدفك الرئيسي المحدد بعد. اضغط على "تعديل العهد" لكتابته الآن وفق معادلة نابليون هيل!
+              </div>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-gold btn-sm" id="btnMorningRead" onclick="App.markAimRead('morning')">
+                  ☀️ قرأته صباحاً بإيمان (+15 XP)
+                </button>
+                <button class="btn btn-outline-gold btn-sm" id="btnEveningRead" onclick="App.markAimRead('evening')">
+                  🌙 قرأته مساءً بإيمان (+15 XP)
+                </button>
+              </div>
+            </div>
+
+            <!-- عادات اليوم السريعة + زر البرنامج اليومي -->
+            <div class="card" style="flex: 1;">
+              <div class="card-header">
+                <div class="card-title">📋 شيك لست البرنامج اليومي (4 فترات)</div>
+                <button class="btn btn-gold btn-sm" onclick="App.switchView('habits')">فتح البرنامج اليومي الكامل</button>
+              </div>
+              <div style="margin-bottom: 12px;">
+                <div style="display:flex; justify-content:space-between; font-size:0.82rem; color:var(--gold-light); margin-bottom:5px;">
+                  <span>نسبة إنجاز برنامج اليوم المثالي:</span>
+                  <strong id="dashBlueprintPct">0%</strong>
+                </div>
+                <div class="xp-bar-container" style="height: 9px;">
+                  <div class="xp-bar-fill" id="dashBlueprintBar" style="width: 0%;"></div>
+                </div>
+              </div>
+              <div id="dashboardHabitsList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- بطاقة نبض المتداول المنضبط وأكاديمية MYTM 2.0 في الشاشة الرئيسية -->
+        <div class="card card-gold" style="margin-bottom: 24px;">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div class="card-title">📈 نبض المتداول المنضبط وأكاديمية عقلية التداول (سوينج & مضاربة يومية)</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-gold btn-sm" onclick="App.switchView('trading')">🚀 فتح غرفة التداول المنضبط</button>
+              <button class="btn btn-royal btn-sm" style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid var(--gold-primary); color: #FDE68A;" onclick="App.switchView('agent')">🤖 استشارة المرشد الذكي</button>
+            </div>
+          </div>
+          <div id="dashboardTradingPulseBox"></div>
+        </div>
+
+        <!-- خزانة الأوسمة والإنجازات (16 وساماً: 8 قوانين النجاح + 8 احتراف التداول) -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🏆 أوسمة الشرف والإنجاز (قوانين النجاح الـ 16 + احتراف التداول)</div>
+            <span id="badgesCountText" style="font-size: 0.82rem; color: var(--gold-primary); font-weight: 700;">0 / 16 أوسمة مفتوحة</span>
+          </div>
+          <div class="badges-grid" id="badgesGrid"></div>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           2. قسم موسوعة القوانين الـ 16 التفاعلية (16 Laws Encyclopedia)
+           ================================================================= -->
+      <section id="view-laws" class="view-section">
+        <div class="laws-filter-bar">
+          <div class="filter-pills" id="lawsCategoryPills">
+            <button class="filter-pill active" onclick="App.filterLaws('all', this)">الكل (16)</button>
+            <button class="filter-pill" onclick="App.filterLaws('القيادة والتحالف', this)">القيادة والتحالف</button>
+            <button class="filter-pill" onclick="App.filterLaws('الرؤية والاتجاه', this)">الرؤية والاتجاه</button>
+            <button class="filter-pill" onclick="App.filterLaws('القوة النفسية', this)">القوة النفسية</button>
+            <button class="filter-pill" onclick="App.filterLaws('القدرات الذهنية', this)">القدرات الذهنية</button>
+            <button class="filter-pill" onclick="App.filterLaws('الاستقلال المالي', this)">الاستقلال المالي</button>
+            <button class="filter-pill" onclick="App.filterLaws('التميز المهني', this)">التميز المهني</button>
+            <button class="filter-pill" onclick="App.filterLaws('العلاقات والتأثير', this)">العلاقات والتأثير</button>
+            <button class="filter-pill" onclick="App.filterLaws('المرونة والحكمة', this)">المرونة والحكمة</button>
+          </div>
+          <input type="text" id="lawSearchInput" class="search-input" placeholder="🔍 ابحث في القوانين أو القصص..." oninput="App.renderLawsGrid()" />
+        </div>
+
+        <div class="laws-grid" id="lawsGridContainer"></div>
+      </section>
+
+      <!-- =================================================================
+           3. قسم الهدف الرئيسي المحدد + فكر تصبح غنياً (Aim & Think and Grow Rich)
+           ================================================================= -->
+      <section id="view-aim" class="view-section">
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="App.switchAimTab('contract', this)">📜 وثيقة الهدف الرئيسي المحدد</button>
+          <button class="sub-tab" onclick="App.switchAimTab('confidence', this)">🦁 صيغة الثقة بالنفس الخماسية</button>
+          <button class="sub-tab" onclick="App.switchAimTab('tagr', this)">💎 خلاصة كتاب فكر تصبح غنياً والأشباح الستة</button>
+        </div>
+
+        <!-- تبويب 1: استوديو الهدف الرئيسي المحدد -->
+        <div id="aim-tab-contract" class="aim-subview">
+          <div class="grid-2">
+            <!-- نموذج بناء الهدف وفق خطوات هيل -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">✍️ معالج صياغة الهدف الرئيسي المحدد</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">1. ما هو هدفك الرئيسي المحدد بدقة قاطعة؟</label>
+                <div class="form-hint">تجنب العبارات العامة؛ اكتب الرقم، المنصب، المشروع أو الغاية بوضوح تام.</div>
+                <textarea id="aimGoalInput" class="form-control" placeholder="مثال: بناء مشروعي التقني الخاص والوصول إلى صافي دخل شهري قدره ..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">2. ما هو التاريخ النهائي المحدد لتحقيق هذا الهدف؟</label>
+                <input type="date" id="aimDateInput" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">3. ماذا ستعطي وتقدم في المقابل؟ (لا يوجد شيء مقابل لا شيء)</label>
+                <div class="form-hint">حدد عدد ساعات العمل اليومي، المهارة، الخدمة التي ستقدمها للناس، أو التضحيات التي ستلتزم بها.</div>
+                <textarea id="aimGiveInput" class="form-control" placeholder="مثال: سأكرس 4 ساعات من التركيز العميق يومياً وأقدم خدمة تتجاوز توقعات عملائي..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">4. ما هي خطتك العملية الواضحة للبدء فوراً؟</label>
+                <textarea id="aimPlanInput" class="form-control" placeholder="الخطوة الأولى، الخطوة الثانية، الخطوة الثالثة..."></textarea>
+              </div>
+              <button class="btn btn-gold" style="width: 100%;" onclick="App.saveDefiniteAim()">
+                💾 اعتماد وحفظ وثيقة العهد الذاتي (+50 XP)
+              </button>
+            </div>
+
+            <!-- عرض الوثيقة الذهبية الرسمية -->
+            <div>
+              <div class="golden-contract">
+                <div class="contract-seal">👑 وثيقة العهد الذاتي • نابليون هيل</div>
+                <h3 style="font-size: 1.35rem; color: var(--text-primary); margin-bottom: 6px;">بياني الرسمي لهدفي الرئيسي في الحياة</h3>
+                <p style="font-size: 0.82rem; color: var(--text-secondary);">
+                  "تُقرأ هذه الوثيقة بصوت مسموع ويقين تام مرة قبل النوم ومرة فور الاستيقاظ"
+                </p>
+
+                <div class="contract-statement" id="renderedContractText">
+                  قم بملء الحقول على اليمين لتوليد وثيقة عهدك الذاتي المذهّبة...
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 18px; flex-wrap: wrap; gap: 10px;">
+                  <div>
+                    <div style="font-size: 0.78rem; color: var(--text-secondary);">عدد مرات القراءة بالإيحاء الذاتي:</div>
+                    <div style="font-size: 1.1rem; font-weight: 800; color: var(--gold-primary);" id="aimReadCountLabel">0 مرة</div>
+                  </div>
+                  <button class="btn btn-gold" onclick="App.openFocusMeditation()">
+                    🧘‍♂️ فتح وضع التأمل والقراءة الصوتية
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- تبويب 2: صيغة الثقة بالنفس الخماسية -->
+        <div id="aim-tab-confidence" class="aim-subview" style="display: none;">
+          <div class="card card-gold">
+            <div class="card-header">
+              <div class="card-title">🦁 صيغة الثقة بالنفس (Self-Confidence Formula) - الدرس الثالث</div>
+              <button class="btn btn-gold btn-sm" onclick="App.affirmSelfConfidence()">✋ أُقر وألتزم بهذه الصيغة اليوم (+20 XP)</button>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 18px; font-size: 0.92rem;">
+              هذه هي البنود الخمسة الحرفية التي وضعها نابليون هيل في كتابه لتحويل العقل الباطن من التردد والشك إلى الشجاعة والإقدام عبر قانون الإيحاء الذاتي:
+            </p>
+            <div id="selfConfidenceList" style="display: flex; flex-direction: column; gap: 14px;"></div>
+          </div>
+        </div>
+
+        <!-- تبويب 3: خلاصة كتاب فكر تصبح غنياً والأشباح الستة للخوف -->
+        <div id="aim-tab-tagr" class="aim-subview" style="display: none;">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">💎 الخطوات الـ 6 لتحويل الرغبة إلى ثروة (Think and Grow Rich)</div>
+              </div>
+              <div id="tagrSixStepsList" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">👻 الأشباح الستة للخوف وكيفية علاجها</div>
+              </div>
+              <div id="sixGhostsList" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           4. قسم التقييم الذاتي والتشخيص (Self-Assessment Quiz)
+           ================================================================= -->
+      <section id="view-quiz" class="view-section">
+        <div class="grid-2" style="margin-bottom: 24px;">
+          <!-- ملخص التشخيص ونقاط القوة والضعف -->
+          <div class="card card-gold">
+            <div class="card-header">
+              <div class="card-title">🧭 التقرير التشخيصي لتوازنك في القوانين الـ 16</div>
+              <button class="btn btn-gold btn-sm" onclick="App.saveQuizAssessment()">💾 حفظ التقييم وتحديث الرادار (+40 XP)</button>
+            </div>
+            <div class="grid-2" style="margin-top: 12px;">
+              <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); padding: 14px; border-radius: 12px;">
+                <h4 style="color: #34D399; margin-bottom: 8px; font-size: 0.95rem;">💪 أقوى 3 قوانين لديك</h4>
+                <div id="quizTopStrengths"></div>
+              </div>
+              <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); padding: 14px; border-radius: 12px;">
+                <h4 style="color: #F87171; margin-bottom: 8px; font-size: 0.95rem;">⚠️ أضعف 3 قوانين (تحتاج تركيزاً)</h4>
+                <div id="quizTopWeaknesses"></div>
+              </div>
+            </div>
+            <div style="margin-top: 16px; padding: 14px; background: rgba(0,0,0,0.25); border-radius: 10px;">
+              <h4 style="color: var(--gold-light); font-size: 0.92rem; margin-bottom: 6px;">📋 الروشتة العملية المقترحة لك هذا الأسبوع:</h4>
+              <div id="quizPrescriptionText" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7;"></div>
+            </div>
+          </div>
+
+          <!-- رسم بياني راداري داخل صفحة التقييم -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📊 الخريطة البصرية لإتقان القوانين</div>
+            </div>
+            <div class="radar-wrapper">
+              <canvas id="quizRadarChart" width="400" height="340"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- استبيان القوانين الـ 16 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📝 استبيان التحليل الذاتي لنابليون هيل (قيّم نفسك بصدق من 1 إلى 10 في كل قانون)</div>
+          </div>
+          <div id="quizQuestionsContainer"></div>
+          <div style="margin-top: 20px; text-align: center;">
+            <button class="btn btn-gold" onclick="App.saveQuizAssessment()">💾 اعتماد النتيجة وتحديث خطتي العلاجية (+40 XP)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           5. قسم البرنامج اليومي الشامل والعادات ومؤقت التركيز (Daily Blueprint & Habits)
+           ================================================================= -->
+      <section id="view-habits" class="view-section">
+        <!-- شريط التقدم العام في البرنامج اليومي المثالي -->
+        <div class="card card-gold" style="margin-bottom: 22px;">
+          <div class="card-header" style="margin-bottom: 10px;">
+            <div>
+              <div class="card-title">📋 البرنامج اليومي المتكامل (شيك لست اليوم المثالي لنابليون هيل - 4 فترات)</div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">
+                أفضل طريقة عملية لتطبيق القوانين الـ 16 يومياً من لحظة الاستيقاظ حتى النوم خطوة بخطوة. عند إتمام القائمة كاملة تحصل على مكافأة إضافية <strong>(+50 XP)</strong>!
+              </p>
+            </div>
+            <span id="blueprintCompletionBadge" class="contract-seal" style="margin-bottom:0;">0 / 13 مكتمل اليوم (0%)</span>
+          </div>
+          <div class="xp-bar-container" style="height: 11px;">
+            <div class="xp-bar-fill" id="blueprintProgressBar" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- شبكة الفترات الأربع للبرنامج اليومي -->
+        <div class="grid-2" id="dailyBlueprintContainer" style="margin-bottom: 24px;"></div>
+
+        <div class="grid-2">
+          <!-- العمود الأيمن: قائمة العادات الإضافية المخصصة -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">✅ عاداتك الإضافية المخصصة</div>
+              <span id="habitsCompletionBadge" class="xp-tag">0 / 7 مكتمل اليوم</span>
+            </div>
+            <div id="fullHabitsList" style="margin-bottom: 20px;"></div>
+
+            <!-- إضافة عادة جديدة مرتبطة بقانون -->
+            <div style="border-top: 1px solid var(--border-subtle); padding-top: 16px;">
+              <h4 style="color: var(--gold-light); font-size: 0.95rem; margin-bottom: 10px;">➕ إضافة عادة خاصة بك</h4>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="text" id="newHabitTitle" class="form-control" style="flex: 2; min-width: 180px;" placeholder="اكتب العادة الجديدة..." />
+                <select id="newHabitLawSelect" class="form-control" style="flex: 1; min-width: 140px;"></select>
+                <button class="btn btn-gold" onclick="App.addCustomHabit()">إضافة</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- العمود الأيسر: مؤقت التركيز العميق (القانون الثاني عشر) -->
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="focus-timer-box">
+              <div class="law-num-badge" style="display: inline-block; margin-bottom: 8px;">القانون الثاني عشر • التركيز (Concentration)</div>
+              <h3 style="font-size: 1.3rem; color: var(--text-primary);">مؤقت التركيز العميق (Deep Focus)</h3>
+              <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">
+                "القوة السحرية للتركيز تكمن في توجيه كل طاقتك الذهنية نحو مهمة واحدة حتى تتقنها"
+              </p>
+
+              <div class="timer-digits" id="focusTimerDisplay">30:00</div>
+
+              <div style="margin-bottom: 16px;">
+                <input type="text" id="focusTaskInput" class="form-control" style="max-width: 360px; margin: 0 auto; text-align: center;" placeholder="ما هي المهمة الواحدة التي ستركز عليها الآن؟" />
+              </div>
+
+              <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                <button class="btn btn-ghost btn-sm" onclick="App.setFocusMinutes(15)">15 دقيقة</button>
+                <button class="btn btn-ghost btn-sm" onclick="App.setFocusMinutes(30)">30 دقيقة</button>
+                <button class="btn btn-ghost btn-sm" onclick="App.setFocusMinutes(45)">45 دقيقة</button>
+                <button class="btn btn-ghost btn-sm" onclick="App.setFocusMinutes(60)">60 دقيقة</button>
+              </div>
+
+              <div style="display: flex; justify-content: center; gap: 12px;">
+                <button class="btn btn-gold" id="focusStartBtn" onclick="App.toggleFocusTimer()">▶️ ابدأ جلسة التركيز</button>
+                <button class="btn btn-ghost" onclick="App.resetFocusTimer()">🔄 إعادة ضبط</button>
+              </div>
+            </div>
+
+            <!-- سجل جلسات التركيز المكتملة -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">⏱️ سجل جلسات التركيز المكتملة</div>
+                <span id="totalFocusSessionsBadge" class="xp-tag">0 جلسة</span>
+              </div>
+              <div id="focusSessionsLog" style="max-height: 220px; overflow-y: auto;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           7. قسم غرفة التداول المنضبط وأكاديمية عقلية المتداول (MYTM 2.0 + Swing & Day)
+           ================================================================= -->
+      <section id="view-trading" class="view-section">
+        <!-- مؤشرات الأداء والانضباط السلوكي في التداول -->
+        <div class="grid-4" style="margin-bottom: 20px;">
+          <div class="stat-card">
+            <div class="stat-icon">🛡️</div>
+            <div class="stat-info">
+              <h4 id="tradeStatDiscipline">100%</h4>
+              <p>مؤشر الانضباط وضبط النفس (Law #8)</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-info">
+              <h4 id="tradeStatWinRate">0%</h4>
+              <p>نسبة الصفقات الرابحة (Win Rate)</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-info">
+              <h4 id="tradeStatPnL">$0</h4>
+              <p>صافي نتائج التداول (P&L)</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🚀</div>
+            <div class="stat-info">
+              <h4 id="tradeStat10kProgress">0 / 30</h4>
+              <p>تقدم خارطة الـ $10K/Month</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- التبويبات الستة المتكاملة لغرفة التداول وكورس Mentorship 2.0 -->
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="App.switchTradingTab('gatekeeper', this)">🛡️ فلتر وسجل الصفقات (Swing & Day)</button>
+          <button class="sub-tab" onclick="App.switchTradingTab('strategy', this)">📜 دستور استراتيجيتي (الدخول والخروج)</button>
+          <button class="sub-tab" onclick="App.switchTradingTab('primed', this)">🎯 التحضير قبل الجلسة (Primed to Perform)</button>
+          <button class="sub-tab" onclick="App.switchTradingTab('detach', this)">🔄 التفريغ بعد الصفقة (Detach & Reset)</button>
+          <button class="sub-tab" onclick="App.switchTradingTab('academy', this)">🎓 أكاديمية الكورس (12 خطوة • 63 درساً)</button>
+          <button class="sub-tab" onclick="App.switchTradingTab('tenk', this)">🚀 شيك لست $10K/Month ومحطة الأعصاب</button>
+        </div>
+
+        <!-- التبويب 1: فلتر ما قبل الصفقة وسجل الصفقات -->
+        <div id="trading-tab-gatekeeper" class="trading-subview">
+          <div class="grid-2" style="margin-bottom: 24px;">
+            <!-- العمود الأيمن: فلتر وحارس البوابة النفسية قبل دخول أي صفقة -->
+            <div class="card card-gold">
+              <div class="card-header">
+                <div class="card-title">🛡️ شيك لست حارس البوابة قبل دخول الصفقة (Pre-Trade Filter)</div>
+                <button class="btn btn-ghost btn-sm" onclick="App.resetPreTradeChecks()">إعادة تصفير</button>
+              </div>
+              <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 12px;">
+                صُمم هذا الفلتر خصيصاً لأسلوبك <strong>(سوينج + مضاربة يومية)</strong> لتطبيق القانون 8 (ضبط النفس) والقانون 11 (التفكير الدقيق) وأداة <strong>Bulletproof Mindset 2.0</strong> قبل تنفيذ أي صفقة:
+              </p>
+
+              <div id="preTradeChecklistContainer">
+                <div class="checklist-item" onclick="App.togglePreTradeCheck(0)">
+                  <div class="check-left">
+                    <div class="custom-checkbox" id="ptc_0"></div>
+                    <span class="item-text" style="font-size:0.88rem;"><strong>1. تحديد الهوية الزمنية (Law #2):</strong> حددت بوضوح هل هذه الصفقة (مضاربة يومية Day Trade) أم (سوينج Swing)، ولن أحول مضاربة خاسرة إلى سوينج بدافع الأمل!</span>
+                  </div>
+                </div>
+                <div class="checklist-item" onclick="App.togglePreTradeCheck(1)">
+                  <div class="check-left">
+                    <div class="custom-checkbox" id="ptc_1"></div>
+                    <span class="item-text" style="font-size:0.88rem;"><strong>2. التفكير الدقيق والقناص (Law #11 & Step #5):</strong> أتصرّف كقناص صبور (Predator) وإشارة الدخول حقيقة فنية مكتملة وليست ملاحقة للسعر (FOMO).</span>
+                  </div>
+                </div>
+                <div class="checklist-item" onclick="App.togglePreTradeCheck(2)">
+                  <div class="check-left">
+                    <div class="custom-checkbox" id="ptc_2"></div>
+                    <span class="item-text" style="font-size:0.88rem;"><strong>3. التحرر من الغرور والعار (Law #8 & Step #2):</strong> حالتي النفسية متزنة؛ لا أدخل بدافع الانتقام من خسارة سابقة ولا بنشوة الغرور بعد صفقة رابحة.</span>
+                  </div>
+                </div>
+                <div class="checklist-item" onclick="App.togglePreTradeCheck(3)">
+                  <div class="check-left">
+                    <div class="custom-checkbox" id="ptc_3"></div>
+                    <span class="item-text" style="font-size:0.88rem;"><strong>4. حماية الإوزة الذهبية (Law #4 & Step #1):</strong> وقف الخسارة (Stop Loss) محدد مسبقاً، وحجم اللوت ضمن سعتي النفسية والمالية.</span>
+                  </div>
+                </div>
+                <div class="checklist-item" onclick="App.togglePreTradeCheck(4)">
+                  <div class="check-left">
+                    <div class="custom-checkbox" id="ptc_4"></div>
+                    <span class="item-text" style="font-size:0.88rem;"><strong>5. تحييد النتيجتين (Bulletproof Mindset 2.0):</strong> تخيلت الصفقة تضرب الوقف وتخيلتها تضرب الهدف، وفي الحالتين أنا هادئ تماماً وملتزم بالعملية (Unfazed).</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="readiness-meter danger" id="preTradeReadinessBox">
+                <strong style="font-size: 1.05rem; display: block;" id="preTradeReadinessTitle">⛔ جاهزية الدخول: 0% — لا تدخل الصفقة قبل إتمام الفحص النفسي!</strong>
+                <span style="font-size: 0.82rem;" id="preTradeReadinessDesc">أشر على الشروط الخمسة أعلاه بصدق للتأكد من أن عقلك الواعي هو من يقود الصفقة وليس العاطفة.</span>
+              </div>
+            </div>
+
+            <!-- العمود الأيسر: تسجيل صفقة جديدة + تشخيص السلوك النفسي -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📝 تسجيل صفقة وتوثيق الحالة النفسية (Trading & Emotion Log)</div>
+              </div>
+              <div class="grid-2" style="gap: 12px;">
+                <div class="form-group">
+                  <label class="form-label">الرمز / السهم / العملة / الزوج:</label>
+                  <input type="text" id="trSymbol" class="form-control" placeholder="مثال: GOLD / BTC / NVDA / EURUSD" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">نوع التداول:</label>
+                  <select id="trStyle" class="form-control">
+                    <option value="مضاربة يومية (Day Trade)">⚡ مضاربة يومية (Day Trade)</option>
+                    <option value="صفقة سوينج (Swing Trade)">🌊 صفقة سوينج (Swing Trade)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid-2" style="gap: 12px;">
+                <div class="form-group">
+                  <label class="form-label">نتيجة الصفقة:</label>
+                  <select id="trOutcome" class="form-control">
+                    <option value="win">🟢 صفقة رابحة (Win)</option>
+                    <option value="loss">🔴 صفقة خاسرة (Loss)</option>
+                    <option value="be">⚪ نقطة التعادل (Breakeven)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">الربح أو الخسارة المالية ($ أو النقاط):</label>
+                  <input type="number" id="trPnL" class="form-control" placeholder="مثال: 250 أو -100" value="0" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">🧠 حالتي النفسية وسلوكي أثناء الصفقة (بكل صراحة مع الذات):</label>
+                <select id="trEmotion" class="form-control">
+                  <option value="disciplined">✅ التزام كامل بالخطة وتنفيذ ميكانيكي هادئ (Elite Operator)</option>
+                  <option value="fomo">⚠️ استعجال ودخول متأخر خوفاً من فوات الفرصة (FOMO)</option>
+                  <option value="revenge">🔥 تداول انتقامي لتعويض خسارة سابقة (Revenge Trading)</option>
+                  <option value="early_exit">😰 قلق وخروج مبكر جداً من صفقة رابحة قبل الهدف</option>
+                  <option value="moved_sl">🛑 رفض الخسارة أو تحويل مضاربة يومية إلى سوينج عالق</option>
+                  <option value="overtrading">😤 نشوة غرور أو إفراط في التداول (Pride / Overtrading)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">📘 الدرس المستفاد وملاحظتي للمرشد الذكي (Law #14):</label>
+                <textarea id="trNotes" class="form-control" style="min-height: 70px;" placeholder="ماذا فعلت بشكل صحيح؟ أو ما الخطأ السلوكي الذي يجب أن أتفاداه في الصفقة القادمة؟"></textarea>
+              </div>
+
+              <button class="btn btn-gold" style="width: 100%;" onclick="App.addTradeLog()">
+                💾 حفظ الصفقة وتحليلها عبر المرشد النفسي الذكي (+25 XP)
+              </button>
+            </div>
+          </div>
+
+          <!-- جدول وسجل الصفقات وتقييم الانضباط -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📊 سجل صفقات السوينج والمضاربة اليومية وتشخيص الأنماط النفسية</div>
+              <button class="btn btn-outline-gold btn-sm" onclick="App.switchView('agent'); App.triggerAgentAction('analyze_trading');">
+                🤖 اطلب من الإيجنت الذكي تحليل سجل تداولي الآن
+              </button>
+            </div>
+            <div id="tradingLogsContainer" style="max-height: 440px; overflow-y: auto;"></div>
+          </div>
+        </div>
+
+        <!-- التبويب الجديد: دستور استراتيجيتي الخاصة (شروط الدخول والخروج وطريقة التداول للمراجعة اليومية) -->
+        <div id="trading-tab-strategy" class="trading-subview" style="display: none;">
+          <!-- بطاقة المراجعة الصباحية لوثيقة الاستراتيجية المكتوبة -->
+          <div class="aim-contract-card" style="margin-bottom: 22px; text-align: right;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+              <div>
+                <span class="contract-seal">📜 دستور استراتيجيتي الشخصي للمراجعة اليومية قبل التداول (Step #1 & Law #2)</span>
+                <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+                  اقرأ شروط دخولك وخروجك وطريقتك قبل كل جلسة لتبرمج عقلك الواعي على التنفيذ الميكانيكي بدون تردد أو عاطفة.
+                </div>
+              </div>
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <span class="xp-tag" id="strategyReviewCountBadge">مرات المراجعة: 0</span>
+                <button class="btn btn-gold" id="btnReviewStrategyToday" onclick="App.markStrategyReviewedToday()">
+                  ✅ راجعت استراتيجيتي وشروط الدخول والخروج اليوم (+20 XP)
+                </button>
+              </div>
+            </div>
+
+            <div id="renderedStrategyPlaybookBox" style="background: rgba(0,0,0,0.35); border: 1px solid var(--border-gold); border-radius: 14px; padding: 20px; line-height: 1.9;"></div>
+          </div>
+
+          <!-- نموذج كتابة وتحديث الاستراتيجية وملاحظات الدخول والخروج -->
+          <div class="card card-gold">
+            <div class="card-header">
+              <div>
+                <div class="card-title">✍️ كتابة وتحديث قواعد استراتيجيتي وملاحظات الدخول والخروج</div>
+                <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+                  كل ما تكتبه هنا يُحفظ تلقائياً ويطّلع عليه <strong>المرشد النفسي الذكي</strong> ليذكرك بشروطك ويحاسبك عليها!
+                </p>
+              </div>
+            </div>
+
+            <div class="grid-2" style="gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">1. 🌊⚡ فلسفتي العامة والأسواق والفريمات التي أتداول عليها:</label>
+                <textarea id="stratGeneralPhilosophy" class="form-control" style="min-height: 95px;" placeholder="مثال: أتداول الذهب والناسداك والأسهم القيادية. الفريم العام للاتجاه (يومي / 4 ساعات) وفريم التنفيذ للمضاربة (15 دقيقة / 5 دقائق)..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">2. ⚖️ قواعد إدارة المخاطر وحجم اللوت والحد الأقصى للخسارة:</label>
+                <textarea id="stratRiskRules" class="form-control" style="min-height: 95px;" placeholder="مثال: المخاطرة في الصفقة الواحدة 0.5% إلى 1%. أقصى خسارة يومية مسموحة 2% (صفقتان خاسرتان وأغلق الشارت فوراً)..."></textarea>
+              </div>
+            </div>
+
+            <div class="grid-2" style="gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" style="color: #34D399;">3. 🎯 شروط وملاحظات حالة الدخول (Entry Rules — متى أضغط زر الدخول؟):</label>
+                <textarea id="stratEntryRules" class="form-control" style="min-height: 125px;" placeholder="اكتب شروط دخولك الميكانيكية (1، 2، 3...) للسوينج والمضاربة اليومية، والملاحظات التي يجب أن تتأكد منها قبل الدخول..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label" style="color: var(--gold-light);">4. 🏁 شروط وملاحظات حالة الخروج والأهداف (Exit, TP & SL Rules):</label>
+                <textarea id="stratExitRules" class="form-control" style="min-height: 125px;" placeholder="متى أحجز جزءاً من الربح؟ متى أنقل الوقف للدخول (Breakeven)؟ ومتى أخرج فوراً دون تردد؟"></textarea>
+              </div>
+            </div>
+
+            <div class=" grid-2" style="gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" style="color: #60A5FA;">5. 🔄 قواعد الفصل بين صفقات السوينج والمضاربة اليومية:</label>
+                <textarea id="stratSwingVsDayRules" class="form-control" style="min-height: 95px;" placeholder="مثال: ممنوع نهائياً تحويل صفقة مضاربة يومية خاسرة إلى سوينج! صفقات السوينج لا أراقبها على فريم الـ 5 دقائق..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label" style="color: #F87171;">6. 🚫 القائمة الحمراء وملاحظاتي الذهبية (متى يُمنع التداول؟):</label>
+                <textarea id="stratGoldenNotes" class="form-control" style="min-height: 95px;" placeholder="مثال: لا أتداول وقت الأخبار العنيفة، ولا بعد السهر، ولا لتعويض خسارة، ولا أدخل بعد فوات نقطة الدخول الآمنة..."></textarea>
+              </div>
+            </div>
+
+            <button class="btn btn-gold" style="width: 100%; margin-top: 8px;" onclick="App.saveTradingStrategyPlaybook()">
+              💾 حفظ واعتماد دستور استراتيجيتي وملاحظات الدخول والخروج (+30 XP)
+            </button>
+          </div>
+        </div>
+
+        <!-- التبويب 2: بروتوكول التحضير قبل الجلسة (Primed to Perform + 5-5-5-5 Breathing) -->
+        <div id="trading-tab-primed" class="trading-subview" style="display: none;">
+          <div class="grid-2">
+            <div class="card card-gold">
+              <div class="card-header">
+                <div class="card-title">🎯 شيك لست التحضير قبل الجلسة (Primed to Perform Protocol)</div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 14px;">
+                بروتوكول باتريك بيلوني (الخطوة 2 من الكورس) لتصفية عدستك الذهنية وتحييد الخوف والطمع والتوقعات غير الواقعية قبل الجلوس أمام الشارت:
+              </p>
+              <div id="primedChecklistContainer"></div>
+            </div>
+
+            <!-- مؤقت التنفس التوازني 1:1 (5-5-5-5) لتحقيق توازن الجهاز العصبي -->
+            <div class="focus-timer-box">
+              <div class="law-num-badge" style="display: inline-block; margin-bottom: 8px;">توازن التنفس = توازن العقل (Step #2 • Primed to Perform)</div>
+              <h3 style="font-size: 1.3rem; color: var(--text-primary);">تمرين التنفس المربّع (1:1 Box Breathing)</h3>
+              <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 6px;">
+                5 ثوانٍ شهيق ← 5 ثوانٍ حبس ← 5 ثوانٍ زفير ← 5 ثوانٍ حبس (لمدة 5 دقائق قبل فتح الشارت)
+              </p>
+              <div id="breathingPhaseText" style="font-size: 1.5rem; font-weight: 800; color: var(--gold-primary); margin-top: 18px;">
+                اضغط للبدء بتهدئة جهازك العصبي
+              </div>
+              <div class="timer-digits" id="breathingTimerDigits" style="font-size: 3.2rem;">05</div>
+              <div style="display: flex; justify-content: center; gap: 12px; margin-top: 14px;">
+                <button class="btn btn-gold" id="breathingToggleBtn" onclick="App.toggleBoxBreathing()">▶️ ابدأ تمرين التنفس (5-5-5-5)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- التبويب 3: بروتوكول التفريغ وإعادة الضبط بعد الصفقة (Detach & Reset Protocol) -->
+        <div id="trading-tab-detach" class="trading-subview" style="display: none;">
+          <div class="card card-gold" style="margin-bottom: 20px;">
+            <div class="card-header">
+              <div class="card-title">🔄 بروتوكول التفريغ وإعادة الضبط النفسي (Detach & Reset Protocol)</div>
+            </div>
+            <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 16px;">
+              اختر الموقف الذي حدث معك الآن ليفتح لك بروتوكول الموازنة النفسية من الكورس ويمنعك من الوقوع في (التداول الانتقامي بعد الخسارة) أو (فخ الغرور والنشوة الكاذبة بعد الربح) أو (ملاحقة السعر بعد فوات الصفقة):
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px;">
+              <button class="btn btn-gold" onclick="App.renderDetachProtocol('loss')">🔴 خرجت للتو من صفقة خاسرة (Loss)</button>
+              <button class="btn btn-outline-gold" onclick="App.renderDetachProtocol('win')">🟢 خرجت للتو من صفقة رابحة (Win)</button>
+              <button class="btn btn-ghost" onclick="App.renderDetachProtocol('missed')">🟡 فاتتني صفقة رابحة ولم أدخلها (Missed Trade)</button>
+            </div>
+            <div id="detachProtocolContentBox"></div>
+          </div>
+        </div>
+
+        <!-- التبويب 4: أكاديمية عقلية المتداول (الـ 12 خطوة والـ 63 درساً بالتوازي مع القوانين الـ 16) -->
+        <div id="trading-tab-academy" class="trading-subview" style="display: none;">
+          <div class="card" style="margin-bottom: 20px;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">🎓 موسوعة كورس (Trading Psychology Mentorship 2.0) — 13 مرحلة و63 درساً تفاعلياً</div>
+                <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">
+                  اضغط على أي خطوة من الخطوات أدناه لفتح <strong>النافذة التفاعلية المبوبة (4 تبويبات)</strong> وتصفح <strong>الـ 63 درساً بالتفصيل</strong> وتدوين ملاحظاتك الخاصة عليها:
+                </p>
+              </div>
+              <span class="xp-tag" id="mytmLessonsProgressBadge">0 / 63 درساً مكتملاً</span>
+            </div>
+            <div id="mytmAcademyStepsContainer" class="laws-grid"></div>
+          </div>
+        </div>
+
+        <!-- التبويب 5: شيك لست الـ $10K/Month (30 محطة) + محطة التسجيل العصبي (Neural Logging Station) -->
+        <div id="trading-tab-tenk" class="trading-subview" style="display: none;">
+          <div class="grid-2">
+            <!-- شيك لست الـ 30 محطة -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🚀 شيك لست الـ $10K/Month (الـ 30 محطة وأداة)</div>
+                <span class="xp-tag" id="tenKChecklistBadge">0 / 30 مكتمل</span>
+              </div>
+              <div id="tenKChecklistContainer" style="max-height: 600px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- محطة التسجيل العصبي وتفكيك العقد النفسية (Neural Logging Station - Steps 8 to 12) -->
+            <div class="card card-gold">
+              <div class="card-header">
+                <div class="card-title">🧠 محطة التسجيل العصبي وتفكيك التدمير الذاتي (Neural Logging Station)</div>
+              </div>
+              <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 14px;">
+                أداة الخطوات (8 إلى 12) من الكورس لتفكيك الشحنات العاطفية اللاواعية (الذنب Guilt، العار Shame، الغرور Pride، والخوف) وإعادة برمجة العقل الباطن:
+              </p>
+              <div class="form-group">
+                <label class="form-label">1. ما هو العائق النفسي أو الشعور الضاغط لديك الآن؟</label>
+                <input type="text" id="neuralTriggerInput" class="form-control" placeholder="مثال: شعور بالذنب بعد كسر الخطة / خوف من الدخول بعد خسارتين..." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">2. الموازنة المعرفية (Step #8 & #9): كيف خدمني هذا الحدث في تطور شخصيتي كمتداول؟</label>
+                <textarea id="neuralReframeInput" class="form-control" placeholder="ما الفائدة الخفية التي كشفتها لي هذه التجربة لترقية نظامي وانضباطي؟"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">3. الهوية والاعتقاد الجديد (Step #10 & #11 - Identity Rewrite):</label>
+                <input type="text" id="neuralIdentityInput" class="form-control" placeholder="مثال: أنا منفذ محترف أحترم احتمالات السوق ولا أربط قيمتي بصفقة واحدة" />
+              </div>
+              <button class="btn btn-gold" style="width: 100%; margin-bottom: 18px;" onclick="App.addNeuralLog()">
+                ⚡ تفكيك الشحنة العاطفية وحفظ البرمجة الجديدة (+30 XP)
+              </button>
+              <div id="neuralLogsList" style="max-height: 280px; overflow-y: auto;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           8. قسم المرشد النفسي ومدرب التداول الذكي (Direct AI Agent Mentor)
+           ================================================================= -->
+      <section id="view-agent" class="view-section">
+        <div class="grid-2" style="grid-template-columns: 1.65fr 1fr; gap: 20px;">
+          <!-- نافذة المحادثة المباشرة مع الإيجنت الذكي -->
+          <div class="card card-gold" style="padding: 18px;">
+            <div class="card-header" style="margin-bottom: 10px;">
+              <div>
+                <div class="card-title">🤖 المرشد النفسي الذكي (نابليون هيل + PatGPT Mentorship 2.0)</div>
+                <p style="font-size: 0.78rem; color: var(--text-secondary);">
+                  ملمّ بالكامل بـ <strong>القوانين الـ 16 لنابليون هيل</strong> بالتوازي مع <strong>الـ 63 درساً والـ 30 أداة من كورس Mentorship 2.0</strong> ومطلع على كل بياناتك الحية.
+                </p>
+              </div>
+              <button class="btn btn-ghost btn-sm" onclick="App.clearAgentChat()">مسح المحادثة</button>
+            </div>
+
+            <!-- أزرار التدخل السريع والتحليل الفوري -->
+            <div class="quick-prompts-bar">
+              <button class="prompt-chip" onclick="App.triggerAgentAction('analyze_trading')">🔍 حلّل سجل تداولي وأخطائي النفسية</button>
+              <button class="prompt-chip" onclick="App.triggerAgentAction('emergency_tilt')">🛑 طوارئ: أشعر برغبة في الانتقام أو التسرع الآن!</button>
+              <button class="prompt-chip" onclick="App.triggerAgentAction('false_winning')">🟢 ربحت للتو وأخشى فخ الغرور (Boom & Bust)</button>
+              <button class="prompt-chip" onclick="App.triggerAgentAction('swing_vs_day')">🌊 كيف أضبط نفسي بين السوينج والمضاربة اليومية؟</button>
+              <button class="prompt-chip" onclick="App.triggerAgentAction('self_sabotage')">🔥 كيف أكسر التدمير الذاتي وعقدة الذنب (Steps 8-12)؟</button>
+              <button class="prompt-chip" onclick="App.triggerAgentAction('daily_audit')">📊 راجع توازني في المسارين (هيل + التداول) اليوم</button>
+              <button class="prompt-chip" onclick="App.triggerAgentAction('confession_review')">🪞 راجع جلسة صراحتي ونبهني على نقاط تركيزي اليوم</button>
+            </div>
+
+            <!-- صندوق الرسائل -->
+            <div class="agent-chat-box">
+              <div class="agent-messages" id="agentMessagesList"></div>
+              <div class="agent-input-bar">
+                <input type="text" id="agentUserInput" class="form-control" placeholder="اكتب سؤالك، أو صف حالتك النفسية الآن قبل/بعد الصفقة..." onkeydown="if(event.key==='Enter') App.sendUserMessageToAgent()" />
+                <button class="btn btn-gold" id="agentSendBtn" onclick="App.sendUserMessageToAgent()">إرسال 🚀</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- العمود الأيسر: التقرير الحي لما يراه الإيجنت + إعداد الربط بـ Gemini API -->
+          <div style="display: flex; flex-direction: column; gap: 18px;">
+            <!-- بطاقة البصيرة الحية (Live Behavioral Radar read by Agent) -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">👁️ ما يرصده الإيجنت في سلوكك الآن</div>
+              </div>
+              <div id="agentLiveInsightBox" style="font-size: 0.86rem; line-height: 1.75; color: var(--text-secondary);"></div>
+            </div>
+
+            <!-- إعدادات ربط Gemini API الاختياري للمحادثة السحابية الحية -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">⚡ محرك الذكاء الاصطناعي (Dual AI Engine)</div>
+              </div>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 10px;">
+                يعمل الإيجنت تلقائياً بـ <strong>المحرك النفسي الخبير المدمج</strong> (بدون إنترنت)، ويمكنك أيضاً إضافة مفتاح <strong>Google Gemini API</strong> المجاني لتفعيل الذكاء الاصطناعي السحابي العميق:
+              </p>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label" style="font-size: 0.8rem;">مفتاح Gemini API Key (اختياري):</label>
+                <input type="password" id="geminiApiKeyInput" class="form-control" placeholder="AIzaSy..." />
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-gold btn-sm" onclick="App.saveAgentApiKey()">💾 حفظ المفتاح وفحص الاتصال</button>
+                <button class="btn btn-royal btn-sm" style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid var(--gold-primary); color: #FDE68A;" onclick="App.testGeminiConnection()">🔌 فحص الاتصال الحي الآن</button>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="btn btn-ghost btn-sm">🔑 الحصول على مفتاح مجاني</a>
+              </div>
+              <div id="agentEngineStatusText" style="font-size: 0.8rem; color: #34D399; margin-top: 10px; padding: 10px 12px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); line-height: 1.65;">
+                الحالة: المحرك النفسي الخبير المدمج نشط وجاهز ✅
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- بطاقة جلسة الصراحة الكاملة والذاكرة الدائمة للمرشد (لا تُمسح أبداً عند مسح الدردشة) -->
+        <div class="card card-gold" style="margin-top: 22px;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">🪞 جلسة الصراحة التأسيسية والذاكرة الدائمة للمرشد الذكي (Permanent Trader Dossier)</div>
+              <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">
+                اشرح للمرشد هنا بكل صراحة مشاكلك ونقاط ضعفك ومحفزاتك العاطفية؛ <strong>يتم حفظ هذا الملف للأبد في ذاكرة المرشد</strong> (حتى لو مسحت المحادثة) ليذكّرك وينبهك باستمرار على ما تحتاج التركيز عليه:
+              </p>
+            </div>
+            <span class="xp-tag" id="confessionStatusBadge">ذاكرة المرشد الدائمة</span>
+          </div>
+
+          <div class="grid-2" style="gap: 16px;">
+            <div class="form-group">
+              <label class="form-label" style="color: #F87171;">1. 🔍 أبرز مشاكلي وأخطائي النفسية المتكررة في التداول (بكل صراحة):</label>
+              <textarea id="confessWeaknesses" class="form-control" style="min-height: 95px;" placeholder="مثال: أستعجل الدخول قبل إغلاق الشمعة، أخاف وأخرج مبكراً من الربح في السوينج، أو أصاب بالغرور بعد سلسلة أرباح فأرفع اللوت..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="color: #FBBF24;">2. ⚡ المحفزات والأوقات التي أفقد فيها انضباطي (My Emotional Triggers):</label>
+              <textarea id="confessTriggers" class="form-control" style="min-height: 95px;" placeholder="مثال: عندما أخسر أول صفقة في الصباح، أو عندما تفوتني حركة قوية أمام عيني، أو عندما أتداول وأنا مرهق..."></textarea>
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap: 16px;">
+            <div class="form-group">
+              <label class="form-label" style="color: #60A5FA;">3. 🧠 تجارب أو صدمات تداول سابقة ما زالت تؤثر عليّ (Clearing Your Past):</label>
+              <textarea id="confessPastBlocks" class="form-control" style="min-height: 95px;" placeholder="مثال: خسارة حساب سابق بسبب عدم وضع وقف خسارة، أو شعور بالذنب تجاه خسارة مبلغ كبير..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="color: #34D399;">4. 🔔 الأمور التي أريد من المرشد أن ينبهني ويحاسبني عليها يومياً:</label>
+              <textarea id="confessFocusAreas" class="form-control" style="min-height: 95px;" placeholder="مثال: نبهني دائماً على احترام وقف الخسارة، عدم الخلط بين المضاربة والسوينج، والاكتفاء بصفقتين يومياً..."></textarea>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button class="btn btn-gold" style="flex: 1;" onclick="App.saveTraderConfessionDossier()">
+              💾 حفظ جلسة الصراحة في عقل المرشد الدائم وتحليلها الآن (+35 XP)
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           6. قسم المختبر العملي والمفكرة الفلسفية (Practical Lab & Mastermind)
+           ================================================================= -->
+      <section id="view-lab" class="view-section">
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="App.switchLabTab('thinking', this)">🧠 مفكرة التفكير الدقيق والقاعدة الذهبية</button>
+          <button class="sub-tab" onclick="App.switchLabTab('failure', this)">🦅 سجل تحويل الفشل إلى نجاح</button>
+          <button class="sub-tab" onclick="App.switchLabTab('mastermind', this)">🤝 مجلس العقل المدبر والمستشارين</button>
+          <button class="sub-tab" onclick="App.switchLabTab('saving', this)">💰 حاسبة قانون الادخار (Law #4)</button>
+        </div>
+
+        <!-- أداة 1: مفكرة التفكير الدقيق (فصل الحقائق عن الآراء) والامتنان -->
+        <div id="lab-tab-thinking" class="lab-subview">
+          <div class="grid-2">
+            <div class="card card-gold">
+              <div class="card-header">
+                <div class="card-title">🧠 أداة التفكير الدقيق (Law #11) وميزان القرار العقلاني</div>
+              </div>
+              <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.7;">
+                يعرّف نابليون هيل <strong>التفكير الدقيق</strong> بأنه فصل <strong>الحقائق المؤكدة بالبرهان</strong> عن <strong>مجرد الظنون والمخاوف وآراء الناس</strong>. اختر موقفاً شائعاً أو اكتب قرارك ثم اضغط زر الفصل التلقائي:
+              </p>
+
+              <!-- قوالب سريعة لمواقف وقرارات التداول والحياة -->
+              <div style="margin-bottom: 12px;">
+                <div style="font-size: 0.77rem; color: var(--gold-light); font-weight: 700; margin-bottom: 6px;">⚡ اختر قراراً لتفكيكه بميزان التفكير الدقيق:</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.75rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.fillThinkingQuickTemplate('hesitate_entry')">🎯 متردد في دخول صفقة رغم اكتمال الشروط</button>
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.75rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.fillThinkingQuickTemplate('fear_pullback')">🌊 السعر يصحح في صفقة سوينج وأفكر في الإغلاق المبكر</button>
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.75rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.fillThinkingQuickTemplate('double_lot')">🔥 حققت أرباحاً وأفكر في مضاعفة حجم العقد (اللوت)</button>
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.75rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.fillThinkingQuickTemplate('market_rumor')">📰 سمعت تحليلات وأخباراً متضاربة جعلتني أشك في خطتي</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">1. الموضوع أو الصفقة أو القرار الذي أحلله اليوم:</label>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <input type="text" id="journalTopic" class="form-control" style="flex: 1; min-width: 220px;" placeholder="مثال: هل أدخل صفقة السوينج الآن أم أنتظر؟..." />
+                  <button type="button" class="btn btn-royal" style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1.5px solid var(--gold-primary); color: #FDE68A; font-weight: 800; white-space: nowrap;" onclick="App.autoAnalyzeAccurateThinking()">
+                    🔮 افصل لي الحقائق عن أوهام الخوف والطمع تلقائياً
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">✅ 2. الحقائق المؤكدة والمهمة (Facts — ما يثبته الشارت والدستور):</label>
+                <div class="form-hint">ما هي المعطيات المبرهنة بالدليل والتي تخدم هدفك الرئيسي؟</div>
+                <textarea id="journalFacts" class="form-control" rows="3" placeholder="اكتب الحقائق المجردة فقط بعيداً عن العاطفة (أو اضغط زر الفصل التلقائي أعلاه)..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">💭 3. مجرد آراء أو ظنون أو مخاوف عاطفية (Opinions — يجب استبعادها):</label>
+                <div class="form-hint">افصل هنا آراء الناس غير المبنية على دليل أو مخاوفك الظنية لتتجنب الانخداع بها.</div>
+                <textarea id="journalOpinions" class="form-control" rows="3" placeholder="ما يُقال بدون برهان أو ما يمليه الخوف والتردد والطمع..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">👑 4. القرار العقلاني الحاسم والقاعدة الذهبية (Law #16):</label>
+                <textarea id="journalGoldenRule" class="form-control" rows="2" placeholder="ما هو قرارك النهائي المبني على الحقائق فقط؟ وكيف تطبق القاعدة الذهبية والامتنان اليوم؟"></textarea>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button class="btn btn-gold" onclick="App.addJournalEntry(false)">
+                  💾 حفظ في مفكرة التفكير الدقيق (+25 XP)
+                </button>
+                <button class="btn btn-royal" style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1.5px solid var(--gold-primary); color: #FDE68A; font-weight: 800;" onclick="App.addJournalEntry(true)">
+                  👑 حفظ + عرض القرار على الطاولة المستديرة (+40 XP)
+                </button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📚 أرشيف قرارات التفكير الدقيق والامتنان</div>
+              </div>
+              <div id="journalEntriesList" style="max-height: 580px; overflow-y: auto;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- أداة 2: سجل تحويل الهزيمة المؤقتة إلى نجاح (Law #14) -->
+        <div id="lab-tab-failure" class="lab-subview" style="display: none;">
+          <div class="grid-2">
+            <div class="card card-gold">
+              <div class="card-header">
+                <div class="card-title">🦅 كيميائي النجاح: تحويل العقبات والخسائر إلى فرص (Law #14)</div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.7;">
+                "كل محنة وكل هزيمة مؤقتة تحمل في طياتها بذرة لمنفعة مكافئة أو أعظم منها." — يمكنك كتابة الموقف فقط والضغط على <strong>(🔮 استخرج لي الدرس وبذرة النجاح تلقائياً)</strong> ليقوم النظام بتفكيكه لك، ثم ترحيل القاعدة مباشرة إلى <strong>دستور استراتيجيتك</strong>:
+              </p>
+
+              <!-- قوالب سريعة لمواقف شائعة في التداول والحياة -->
+              <div style="margin-bottom: 12px;">
+                <div style="font-size: 0.77rem; color: var(--gold-light); font-weight: 700; margin-bottom: 6px;">⚡ اختر موقفاً شائعاً أو اكتب موقفك بالأسفل:</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.75rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.fillFailureQuickTemplate('early_exit')">🌊 خرجت مبكراً من صفقة سوينج ثم طار السعر للهدف</button>
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.75rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.fillFailureQuickTemplate('revenge_trade')">🛑 دخلت صفقة انتقامية بعد ضرب الستوب وخسرت مرتين</button>
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.75rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.fillFailureQuickTemplate('fomo_entry')">⚡ تسرعت بالدخول (FOMO) قبل اكتمال شروط استراتيجيتي</button>
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.75rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.fillFailureQuickTemplate('moved_stop')">⚠️ وسعت وقف الخسارة أملاً في عودة السعر فزادت الخسارة</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">1. ما هي الهزيمة المؤقتة أو الخسارة أو العقبة التي واجهتها؟</label>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <input type="text" id="failEvent" class="form-control" style="flex: 1; min-width: 220px;" placeholder="صف الموقف أو الخسارة المؤقتة باختصار..." />
+                  <button type="button" class="btn btn-royal" style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1.5px solid var(--gold-primary); color: #FDE68A; font-weight: 800; white-space: nowrap;" onclick="App.autoExtractFailureLessonAndSeed()">
+                    🔮 استخرج لي الدرس وبذرة النجاح تلقائياً
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">2. ما هو الدرس الحقيقي الذي كشفته لك هذه التجربة؟ (التشخيص الجذري)</label>
+                <textarea id="failLesson" class="form-control" rows="3" placeholder="ما الخلل الذي ظهر في الخطة أو الحالة النفسية؟ (أو اضغط زر الاستخراج التلقائي أعلاه)..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">3. أين تكمن 'بذرة النجاح المكافئ' وما القاعدة الذهبية المستخرجة؟</label>
+                <textarea id="failSeed" class="form-control" rows="3" placeholder="ما هي القاعدة الصارمة أو الخطوة العملية التي ستحول هذه الخسارة إلى ربح مستقبلي؟"></textarea>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button class="btn btn-gold" onclick="App.addFailureConversion(false)">
+                  🦅 حفظ في سجل الانتصارات (+30 XP)
+                </button>
+                <button class="btn btn-royal" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), #0f172a); border: 1.5px solid #34D399; color: #6EE7B7; font-weight: 800;" onclick="App.addFailureConversion(true)">
+                  📜 حفظ + ترحيل القاعدة إلى دستور استراتيجيتي (+45 XP)
+                </button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">💎 سجل الانتصارات والقواعد المستخرجة من العقبات</div>
+              </div>
+              <div id="failureLogsList" style="max-height: 580px; overflow-y: auto;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- أداة 3: مجلس العقل المدبر والمستشارين الخياليين (Law #1) -->
+        <div id="lab-tab-mastermind" class="lab-subview" style="display: none;">
+          <div class="grid-2">
+            <!-- تحالف العقل المدبر الواقعي -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🤝 أعضاء تحالف العقل المدبر (Mastermind Alliance)</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">اسم الشريك / الموجه / العضو:</label>
+                <input type="text" id="mmName" class="form-control" placeholder="الاسم..." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">مجال خبرته والمهارة التي يكملني بها:</label>
+                <input type="text" id="mmSkill" class="form-control" placeholder="مثال: التسويق، الإدارة المالية، البرمجة، الحكمة..." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">القيمة التي أقدمها له في المقابل:</label>
+                <input type="text" id="mmValueGiven" class="form-control" placeholder="كيف أفيده وأدعم أهدافه بروح الوئام؟" />
+              </div>
+              <button class="btn btn-gold" style="width: 100%; margin-bottom: 18px;" onclick="App.addMastermindMember()">
+                ➕ إضافة إلى تحالفي (+25 XP)
+              </button>
+
+              <div id="mastermindMembersList"></div>
+            </div>
+
+            <!-- غرفة المستشارين الخياليين التفاعلية + اجتماع الطاولة المستديرة -->
+            <div class="card card-gold">
+              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <div class="card-title">🏛️ غرفة المستشارين الخياليين والطاولة المستديرة (10 مستشارين)</div>
+                <button class="btn btn-ghost btn-sm" style="background: rgba(255,255,255,0.06); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.18);" onclick="App.clearCouncilChat()">🗑️ مسح الجلسة</button>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.7;">
+                في كتاب <em>فكر تصبح غنياً</em>، كان نابليون هيل يعقد اجتماعاً مسائياً مع مستشاريه المختارين لحل مشكلاته. هنا يضم مجلسك <strong>10 من أعظم رواد النجاح وأساطير التداول وعلم النفس (مارك دوغلاس، بول تيودور جونز، باتريك بايلوني، د. ستينبارجر، إد سيكوتا، ونابليون هيل ورفاقه)</strong> وهم مطلعون على إحصائيات صفقاتك ودستورك وجلسة صراحتك:
+              </p>
+
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label">👤 اختر المستشار للحوار الفردي المفتوح (أو استشر المجلس كاملاً بالأسفل):</label>
+                <select id="advisorSelect" class="form-control" onchange="App.onAdvisorSelectionChange()"></select>
+              </div>
+
+              <!-- بطاقة تعريف المستشار المختار وفلسفته -->
+              <div id="selectedAdvisorProfileBox" style="padding: 12px 14px; background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.28); border-radius: 10px; margin-bottom: 14px; font-size: 0.84rem; line-height: 1.7;"></div>
+
+              <!-- أزرار مواقف تداول وحياة سريعة للطرح على المستشار أو المجلس -->
+              <div style="margin-bottom: 12px;">
+                <div style="font-size: 0.78rem; color: var(--gold-light); font-weight: 700; margin-bottom: 6px;">⚡ اطرح قضية سريعة للنقاش في المجلس:</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.78rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.askCouncilQuickPrompt('كيف أصبر على أرباح السوينج ولا أخرج مبكراً بسبب الخوف من ارتداد السعر؟')">🌊 الصبر على أرباح السوينج</button>
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.78rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.askCouncilQuickPrompt('تعرضت لخسارة وأشعر برغبة في الانتقام والتعويض السريع، ماذا تأمرونني الآن؟')">🛡️ إيقاف التداول الانتقامي</button>
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.78rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.askCouncilQuickPrompt('أشعر بالتردد والخوف من ضغط زر الدخول رغم اكتمال شروط استراتيجيتي، كيف أكسر هذا الحاجز؟')">🎯 علاج التردد قبل الدخول</button>
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.78rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.askCouncilQuickPrompt('راجعوا بياناتي الحالية في البرنامج: ما هي أهم نصيحة توجهونها لي اليوم؟')">📊 تقييم حالتي وصفقاتي اليوم</button>
+                </div>
+              </div>
+
+              <!-- سجل الحوار المفتوح مع المستشارين / الطاولة المستديرة -->
+              <div id="councilChatMessagesList" style="max-height: 540px; overflow-y: auto; padding: 14px; background: rgba(0,0,0,0.42); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 14px;"></div>
+
+              <!-- حقل السؤال وأزرار الحوار الفردي أو الطاولة المستديرة -->
+              <div class="form-group" style="margin-bottom: 10px;">
+                <input type="text" id="advisorQuestion" class="form-control" placeholder="اكتب سؤالك، صفقتك، أو التحدي النفسي وناقش مستشارك بحوار مفتوح..." onkeydown="if(event.key==='Enter') App.consultImaginaryAdvisor()" />
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button class="btn btn-gold" onclick="App.consultImaginaryAdvisor()">
+                  💬 حاور المستشار المختار (+15 XP)
+                </button>
+                <button class="btn btn-royal" style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1.5px solid var(--gold-primary); color: #FDE68A; font-weight: 800;" onclick="App.conveneRoundtableMeeting()">
+                  👑 عقد اجتماع الطاولة المستديرة (+30 XP)
+                </button>
+              </div>
+
+              <div id="advisorResponseBox" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- أداة 4: حاسبة قانون الادخار والاستقلال المالي (Law #4) -->
+        <div id="lab-tab-saving" class="lab-subview" style="display: none;">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">💰 حاسبة توزيع الدخل وقانون الادخار (Law #4)</div>
+              </div>
+              <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 16px;">
+                يوصي نابليون هيل في القانون الرابع بتحديد نسب صارمة لتوزيع دخلك الشهري بحيث تبني "صندوق الحرية والفرص" قبل إنفاق المال على الكماليات:
+              </p>
+              <div class="form-group">
+                <label class="form-label">إجمالي الدخل الشهري:</label>
+                <input type="number" id="finIncome" class="form-control" value="10000" oninput="App.calculateSavingsPlan()" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">نسبة الادخار والاستثمار ("ادفع لنفسك أولاً") — يوصي هيل بـ 10% إلى 25%:</label>
+                <div class="slider-row">
+                  <input type="range" id="finSavePct" class="gold-slider" min="5" max="60" value="20" oninput="App.calculateSavingsPlan()" />
+                  <span class="slider-val-badge" id="finSavePctVal">20%</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">نسبة تطوير الذات والتعلم والكتب (الاستثمار في عقلك):</label>
+                <div class="slider-row">
+                  <input type="range" id="finEduPct" class="gold-slider" min="2" max="25" value="10" oninput="App.calculateSavingsPlan()" />
+                  <span class="slider-val-badge" id="finEduPctVal">10%</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">نسبة نفقات المعيشة الأساسية (السكن، الغذاء، الالتزامات):</label>
+                <div class="slider-row">
+                  <input type="range" id="finLivingPct" class="gold-slider" min="20" max="80" value="55" oninput="App.calculateSavingsPlan()" />
+                  <span class="slider-val-badge" id="finLivingPctVal">55%</span>
+                </div>
+              </div>
+              <button class="btn btn-gold" style="width: 100%;" onclick="App.saveFinancialPlan()">
+                💾 حفظ خطتي المالية الشهرية (+20 XP)
+              </button>
+            </div>
+
+            <div class="card card-gold">
+              <div class="card-header">
+                <div class="card-title">📈 نتائج خطة الحرية المالية وتراكم الثروة</div>
+              </div>
+              <div id="savingsPlanResults"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ==================== شريط التنقل السفلي للجوال (Mobile Bottom Navigation) ==================== -->
+    <nav class="mobile-bottom-nav">
+      <button class="mobile-nav-btn active" data-view="dashboard" onclick="App.switchView('dashboard')">
+        <span class="m-icon">📊</span>
+        <span>الرئيسية</span>
+      </button>
+      <button class="mobile-nav-btn" data-view="laws" onclick="App.switchView('laws')">
+        <span class="m-icon">🏛️</span>
+        <span>القوانين 16</span>
+      </button>
+      <button class="mobile-nav-btn" data-view="aim" onclick="App.switchView('aim')">
+        <span class="m-icon">🎯</span>
+        <span>الهدف</span>
+      </button>
+      <button class="mobile-nav-btn" data-view="quiz" onclick="App.switchView('quiz')">
+        <span class="m-icon">🧭</span>
+        <span>التقييم</span>
+      </button>
+      <button class="mobile-nav-btn" data-view="habits" onclick="App.switchView('habits')">
+        <span class="m-icon">⚡</span>
+        <span>اليومي</span>
+      </button>
+      <button class="mobile-nav-btn" data-view="trading" onclick="App.switchView('trading')">
+        <span class="m-icon">📈</span>
+        <span>التداول</span>
+      </button>
+      <button class="mobile-nav-btn" data-view="agent" onclick="App.switchView('agent')">
+        <span class="m-icon">🤖</span>
+        <span>المرشد AI</span>
+      </button>
+      <button class="mobile-nav-btn" data-view="lab" onclick="App.switchView('lab')">
+        <span class="m-icon">🧪</span>
+        <span>المختبر</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ==================== نافذة تفاصيل القانون التفاعلية (Law Detail Modal) ==================== -->
+  <div class="modal-backdrop" id="lawDetailModal" onclick="if(event.target===this) App.closeLawModal()">
+    <div class="modal-content">
+      <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
+        <div>
+          <span class="law-num-badge" id="modalLawNumber">القانون الأول</span>
+          <h2 id="modalLawTitle" style="font-size: 1.5rem; color: var(--gold-light); margin-top: 6px;">العقل المدبر</h2>
+          <p id="modalLawEnTitle" style="font-size: 0.85rem; color: var(--gold-primary);"></p>
+        </div>
+        <button class="modal-close" onclick="App.closeLawModal()">✕</button>
+      </div>
+
+      <div id="modalLawBody" style="margin-top: 18px;"></div>
+    </div>
+  </div>
+
+  <!-- ==================== نافذة تفاصيل خطوات أكاديمية عقلية المتداول المبوبة (MYTM 12-Step Tabbed Modal) ==================== -->
+  <div class="modal-backdrop" id="mytmStepDetailModal" onclick="if(event.target===this) App.closeMytmStepModal()">
+    <div class="modal-content" style="max-width: 860px;">
+      <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
+        <div>
+          <span class="law-num-badge" id="modalMytmStepBadge">المرحلة 1</span>
+          <h2 id="modalMytmStepTitle" style="font-size: 1.45rem; color: var(--gold-light); margin-top: 6px;">إتقان خطة التداول</h2>
+          <p id="modalMytmStepEnTitle" style="font-size: 0.85rem; color: var(--gold-primary);"></p>
+        </div>
+        <button class="modal-close" onclick="App.closeMytmStepModal()">✕</button>
+      </div>
+
+      <div id="modalMytmStepBody" style="margin-top: 16px;"></div>
+    </div>
+  </div>
+
+  <!-- ==================== نافذة وضع التأمل والإيحاء الذاتي (Auto-Suggestion Focus Mode) ==================== -->
+  <div class="modal-backdrop" id="meditationModal" onclick="if(event.target===this) App.closeFocusMeditation()">
+    <div class="modal-content" style="text-align: center; background: linear-gradient(135deg, #0D1322 0%, #171206 100%); border-width: 2px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <span class="contract-seal">🧘‍♂️ جلسة الإيحاء الذاتي والتأمل في الهدف الرئيسي</span>
+        <button class="modal-close" onclick="App.closeFocusMeditation()">✕</button>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; max-width: 620px; margin: 0 auto 16px;">
+        تنفس بعمق، اقرأ وثيقة هدفك الرئيسي بصوت مسموع، وأغمض عينيك متخيلاً نفسك وقد حققت هذا الهدف بالفعل واشعر بالامتنان والثقة التامة.
+      </p>
+      <div class="contract-statement" id="meditationAimText" style="font-size: 1.4rem; margin: 18px 0;"></div>
+      <div class="timer-digits" id="meditationTimerDigits" style="font-size: 2.8rem;">05:00</div>
+      <div style="display: flex; justify-content: center; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
+        <button class="btn btn-gold" id="meditationTimerBtn" onclick="App.toggleMeditationTimer()">▶️ بدء مؤقت التأمل (5 دقائق)</button>
+        <button class="btn btn-outline-gold" onclick="App.completeMeditationSession()">✨ أتممت القراءة والتخيل بإيمان (+25 XP)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== نافذة المزامنة السحابية مع Google Drive والنسخ الاحتياطي ==================== -->
+  <div class="modal-backdrop" id="syncModal" onclick="if(event.target===this) App.closeSyncModal()">
+    <div class="modal-content" style="max-width: 720px; max-height: 90vh; overflow-y: auto;">
+      <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
+        <div class="card-title">☁️ مركز المزامنة السحابية التلقائية وتطبيق الهاتف المستقل (PC ⇄ Phone)</div>
+        <button class="modal-close" onclick="App.closeSyncModal()">✕</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 16px;">
+        <!-- شريط الحالة اللحظي للمزامنة السحابية -->
+        <div id="cloudSyncStatusBanner" style="padding: 12px 16px; border-radius: 10px; background: rgba(148, 163, 184, 0.1); border: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="cloudSyncStatusIcon">⚪</span>
+            <span id="cloudSyncStatusText" style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary);">المزامنة السحابية التلقائية بين الكمبيوتر والجوال: غير مفعّلة بعد</span>
+          </div>
+          <button class="btn btn-outline-gold btn-sm" onclick="App.manualSyncNow()">🔄 مزامنة الآن</button>
+        </div>
+
+        <!-- 1. المزامنة السحابية التلقائية الحية بالاتجاهين (Google Drive Bridge / Cloud DB) -->
+        <div style="padding: 16px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 12px;">
+          <h4 style="color: #34D399; margin-bottom: 6px;">1️⃣ المزامنة التلقائية الحية بالاتجاهين (الكمبيوتر ⇄ الهاتف)</h4>
+          <p style="font-size: 0.83rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 12px;">
+            يمكنك تفعيل المزامنة السحابية التلقائية <strong>فوراً بضغطة زر واحدة (بدون أي إعدادات خارجية)</strong>، أو عبر رابط جسر Google Script الخاص بك:
+          </p>
+
+          <!-- الزر السحري للتفعيل بضغطة زر واحدة بدون Google Script -->
+          <div style="margin-bottom: 14px; padding: 12px; background: rgba(212, 175, 55, 0.12); border: 1px solid var(--border-gold); border-radius: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <div style="font-weight: 800; font-size: 0.88rem; color: var(--gold-light);">⚡ الخيار السريع (موصى به): سحابة مزامنة جاهزة بضغطة زر!</div>
+              <div style="font-size: 0.78rem; color: var(--text-secondary);">ينشئ لك قناة مزامنة مشفرة ويرفع بياناتك فوراً بدون الحاجة إلى Google Script نهائياً</div>
+            </div>
+            <button class="btn btn-gold btn-sm" onclick="App.createInstantCloudSync()">⚡ إنشاء وتفعيل السحابة الفورية بضغطة زر</button>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label class="form-label" style="font-size: 0.82rem; color: #A7F3D0;">🔗 رابط قناة المزامنة السحابية النشطة (يُملأ تلقائياً بالزر أعلاه أو الصق رابط Google Script):</label>
+            <input type="text" id="cloudSyncUrlInput" class="form-control" dir="ltr" style="font-family: monospace; font-size: 0.83rem;" placeholder="https://ntfy.sh/nh16_sync_... أو https://script.google.com/macros/s/.../exec" />
+          </div>
+
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+            <button class="btn btn-gold btn-sm" onclick="App.saveAndConnectCloudSync()">💾 حفظ واختبار وتفعيل المزامنة</button>
+            <button class="btn btn-outline-gold btn-sm" onclick="App.pushToCloud(false, true)">📤 رفع بيانات هذا الجهاز للسحابة</button>
+            <button class="btn btn-outline-gold btn-sm" onclick="App.pullFromCloud(false, true)">📥 سحب بيانات السحابة لهذا الجهاز</button>
+          </div>
+
+          <div id="cloudSyncDiagBox" style="display: none; margin-bottom: 12px; padding: 12px; border-radius: 10px; font-size: 0.82rem; line-height: 1.65;"></div>
+
+          <!-- دليل إعداد جسر Google Drive في دقيقة واحدة -->
+          <details style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(52, 211, 153, 0.25); border-radius: 10px; padding: 10px 14px;">
+            <summary style="cursor: pointer; font-weight: 700; font-size: 0.83rem; color: var(--gold-light);">
+              🛠️ خيار بديل: إذا أردت استخدام Google Script (ملاحظة هامة لإصلاح خطأ Failed في صورتك)
+            </summary>
+            <div style="margin-top: 10px; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.7;">
+              <ol style="padding-right: 18px; margin-bottom: 10px;">
+                <li>في صورتك ظهر أن <code>myFunction</code> لا تزال موجودة! يجب الضغط داخل محرر Google Script على <strong><code>Ctrl + A</code> ثم <code>Delete</code></strong> لمسح <code>function myFunction() {}</code> بالكامل قبل لصق الكود.</li>
+                <li>اضغط زر <strong>"📋 نسخ الكود السحابي المطور"</strong> بالأسفل والصقه في الصفحة الفارغة تماماً، ثم اضغط <strong>حفظ 💾 (<code>Ctrl + S</code>)</strong>.</li>
+                <li>اضغط من الأعلى على <strong>Deploy ⬅️ Manage deployments ⬅️ أيقونة القلم ✏️ (Edit) ⬅️ Version: New version ⬅️ Deploy</strong> (أو New deployment بصلاحية Anyone).</li>
+              </ol>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-gold btn-sm" onclick="App.copyGoogleAppsScriptCode()">📋 نسخ الكود السحابي المطور (بدون طلب صلاحيات)</button>
+                <a href="https://script.google.com/home/start" target="_blank" class="btn btn-outline-gold btn-sm">🌐 فتح منصة Google Script</a>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <!-- 2. تثبيت البرنامج كتطبيق مستقل على الهاتف + الإقران الذكي بالباركود QR -->
+        <div style="padding: 16px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 12px;">
+          <h4 style="color: #60A5FA; margin-bottom: 6px;">2️⃣ تثبيت البرنامج كتطبيق مستقل على الهاتف + إقرانه بالباركود (QR Code)</h4>
+          <p style="font-size: 0.83rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 10px;">
+            ليعمل البرنامج كتطبيق كامل ومستقل على جوالك 24/7 (حتى والكمبيوتر مغلق تماماً):
+          </p>
+          <ol style="font-size: 0.81rem; color: var(--text-secondary); line-height: 1.7; padding-right: 18px; margin-bottom: 12px;">
+            <li><strong>رفع التطبيق مرة واحدة فقط:</strong> افتح موقع <a href="https://app.netlify.com/drop" target="_blank" style="color: #60A5FA; font-weight: 700; text-decoration: underline;">Netlify Drop المجاني</a> واسحب مجلد البرنامج (<code>napoleon-hill-16-laws</code>) وأفلته هناك، سيعطيك فوراً رابطاً دائماً خاصاً بتطبيقك (مثل <code>https://....netlify.app</code>).</li>
+            <li><strong>توليد باركود الإقران الشامل:</strong> الصق رابط تطبيقك في الخانة أدناه واضغط <strong>"📲 توليد باركود ورابط إقران الجوال"</strong>؛ ثم صوّر الباركود بكاميرا جوالك ليفتح التطبيق وبداخله <strong>رابط المزامنة السحابية + مفتاح الذكاء الاصطناعي + كافة بياناتك</strong> تلقائياً!</li>
+            <li><strong>تثبيته على شاشة الجوال:</strong> من متصفح الجوال اضغط <strong>"إضافة إلى الشاشة الرئيسية" (Add to Home Screen)</strong> ليصبح تطبيقاً مستقلاً بالكامل!</li>
+          </ol>
+
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label class="form-label" style="font-size: 0.82rem; color: #93C5FD;">🌐 رابط تطبيقك على الويب (من Netlify Drop أو GitHub Pages):</label>
+            <input type="text" id="mobileHostedUrlInput" class="form-control" dir="ltr" style="font-family: monospace; font-size: 0.83rem;" placeholder="https://your-app-name.netlify.app" />
+          </div>
+
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-gold btn-sm" onclick="App.generateMobilePairingQR()">📲 توليد باركود ورابط إقران الجوال الشامل (QR)</button>
+            <a href="https://app.netlify.com/drop" target="_blank" class="btn btn-outline-gold btn-sm">🚀 فتح موقع Netlify Drop لرفع المجلد</a>
+          </div>
+
+          <div id="mobilePairingResultBox" style="display: none; margin-top: 14px; padding: 14px; background: rgba(15, 23, 42, 0.85); border: 1px solid var(--border-gold); border-radius: 12px; text-align: center;">
+          </div>
+        </div>
+
+        <!-- 3. النسخ الاحتياطي اليدوي أو الربط بملف محلي على الكمبيوتر -->
+        <div style="padding: 14px 16px; background: rgba(212, 175, 55, 0.06); border: 1px solid var(--border-gold); border-radius: 12px;">
+          <h4 style="color: var(--gold-light); margin-bottom: 6px; font-size: 0.92rem;">3️⃣ أدوات النسخ الاحتياطي الإضافية (ملف JSON محلي)</h4>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px;">
+            <button class="btn btn-gold btn-sm" onclick="App.exportBackupFile()">📥 تحميل نسخة احتياطية (JSON)</button>
+            <label class="btn btn-outline-gold btn-sm" style="cursor: pointer;">
+              📤 استيراد نسخة احتياطية
+              <input type="file" accept=".json" style="display: none;" onchange="App.importBackupFile(event)" />
+            </label>
+            <button class="btn btn-outline-gold btn-sm" onclick="App.linkGoogleDriveFile()">🔗 ربط بملف محلي على الويندوز</button>
+            <span id="linkedFileStatus" style="font-size: 0.78rem; color: var(--text-muted);">الحفظ المحلي نشط ✅</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== نافذة مركز الإشعارات والمنبهات الذكية (Notifications & Reminders Modal) ==================== -->
+  <div class="modal-backdrop" id="notificationsModal" onclick="if(event.target===this) App.closeNotificationsModal()">
+    <div class="modal-content" style="max-width: 640px;">
+      <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
+        <div class="card-title">🔔 مركز الإشعارات والمنبهات الذكية (Windows & Mobile)</div>
+        <button class="modal-close" onclick="App.closeNotificationsModal()">✕</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 16px;">
+        <!-- حالة تفعيل إشعارات النظام -->
+        <div style="padding: 16px; background: rgba(212, 175, 55, 0.08); border: 1px solid var(--border-gold); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h4 style="color: var(--gold-light); margin-bottom: 4px;">🖥️ إشعارات سطح المكتب في الويندوز والجوال</h4>
+            <p id="notifPermissionStatusText" style="font-size: 0.82rem; color: var(--text-secondary);">
+              قم بتفعيل صلاحية الإشعارات لتصلك تنبيهات حتى عندما تكون نافذة البرنامج مصغّرة في الخلفية.
+            </p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-gold btn-sm" onclick="App.requestNotificationPermission()">🔔 تفعيل الإشعارات</button>
+            <button class="btn btn-outline-gold btn-sm" onclick="App.sendTestNotification()">⚡ تجربة إشعار الآن</button>
+          </div>
+        </div>
+
+        <!-- جدولة منبه قراءة الهدف الرئيسي صباحاً ومساءً -->
+        <div style="padding: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 12px;">
+          <h4 style="color: var(--gold-light); margin-bottom: 10px;">⏰ منبهات الإيحاء الذاتي اليومية (قراءة الهدف الرئيسي صباحاً ومساءً)</h4>
+          <div class="grid-2" style="gap: 12px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">☀️ وقت تذكير الصباح:</label>
+              <input type="time" id="notifMorningTime" class="form-control" value="08:00" />
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">🌙 وقت تذكير المساء:</label>
+              <input type="time" id="notifEveningTime" class="form-control" value="21:30" />
+            </div>
+          </div>
+        </div>
+
+        <!-- تذكيرات الحِكم الدورية -->
+        <div style="padding: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 12px;">
+          <h4 style="color: var(--gold-light); margin-bottom: 10px;">💡 إشعارات حِكم نابليون هيل الدورية وتنبيهات الصوت</h4>
+          <div class="form-group">
+            <label class="form-label">تكرار إرسال إشعار بحكمة وتذكير من القوانين الـ 16:</label>
+            <select id="notifWisdomInterval" class="form-control">
+              <option value="0">إيقاف الإشعارات الدورية</option>
+              <option value="30">كل 30 دقيقة</option>
+              <option value="60" selected>كل ساعة (60 دقيقة)</option>
+              <option value="120">كل ساعتين</option>
+              <option value="240">كل 4 ساعات</option>
+            </select>
+          </div>
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem; color: var(--text-primary);">
+            <input type="checkbox" id="notifSoundEnabled" checked style="width: 18px; height: 18px; accent-color: var(--gold-primary);" />
+            <span>تشغيل نغمة التنبيه الهادئة (528Hz) مع الإشعارات وعند انتهاء المؤقت</span>
+          </label>
+        </div>
+
+        <button class="btn btn-gold" style="width: 100%;" onclick="App.saveNotificationSettings()">
+          💾 حفظ إعدادات المنبهات والإشعارات
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- حاوية الإشعارات المنبثقة (Toast Notifications) -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ملفات الجافاسكريبت -->
+  <script src="./js/lawsData.js?v=14"></script>
+  <script src="./js/mytmCourseData.js?v=14"></script>
+  <script src="./js/app.js?v=14"></script>
+</body>
+</html>

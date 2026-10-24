@@ -1,0 +1,20 @@
+{
+  "name": "منظومة قوانين النجاح الـ 16 - نابليون هيل",
+  "short_name": "قوانين النجاح 16",
+  "description": "التطبيق العملي والموسوعي لقوانين النجاح الـ 16 وكتاب فكر تصبح غنياً لنابليون هيل",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0B0F19",
+  "theme_color": "#D4AF37",
+  "dir": "rtl",
+  "lang": "ar",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230B0F19' stroke='%23D4AF37' stroke-width='4'/><text x='50' y='64' font-size='44' text-anchor='middle' fill='%23D4AF37' font-family='serif' font-weight='bold'>16</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
