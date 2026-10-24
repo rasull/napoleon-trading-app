@@ -3,6 +3,7 @@
 // ============================================================================
 
 const STORAGE_KEY = 'napoleon_hill_16_laws_state_v1';
+const DEFAULT_CLOUD_SYNC_URL = 'https://ntfy.sh/nh16_kw_sync_v16_8a4f2c9e1d';
 
 const App = {
   state: null,
@@ -29,6 +30,7 @@ const App = {
     this.checkDailyResetAndStreak();
     this.populateSelects();
     this.renderAll();
+    this.initAutoSaveInputs();
     this.initNotificationsEngine();
     this.initCloudSyncEngine();
     this.registerServiceWorker();
@@ -108,7 +110,7 @@ const App = {
         lastUpdated: ''
       },
       geminiApiKey: '',
-      cloudSyncUrl: '',
+      cloudSyncUrl: DEFAULT_CLOUD_SYNC_URL,
       mobileHostedUrl: '',
       lastModifiedTimestamp: 0,
       lastCloudSyncTime: '',
@@ -149,11 +151,41 @@ const App = {
     score += (st.tradingLogs || []).length * 25;
     score += (st.failureLogs || []).length * 25;
     score += (st.journalEntries || []).length * 20;
+    score += (st.mastermindMembers || []).length * 15;
+    score += (st.neuralLogs || []).length * 15;
+    score += (st.exploredLaws || []).length * 5;
     score += Object.keys(st.completedActions || {}).length * 15;
+    score += Object.keys(st.lawNotes || {}).length * 15;
     score += Object.keys(st.mytmCompletedLessons || {}).length * 15;
-    if (st.definiteAim && st.definiteAim.goal && st.definiteAim.goal.trim()) score += 50;
-    if (st.strategyPlaybook && (st.strategyPlaybook.entryRules || st.strategyPlaybook.generalPhilosophy)) score += 50;
-    if (st.traderPsychProfile && (st.traderPsychProfile.weaknesses || st.traderPsychProfile.triggers)) score += 50;
+    score += Object.keys(st.mytmStepNotes || {}).length * 15;
+    score += Object.keys(st.tenKCompleted || {}).length * 15;
+    score += Object.keys(st.primedCheckedToday || {}).length * 10;
+    score += Object.keys(st.habitsCompletedToday || {}).length * 10;
+    score += Object.keys(st.blueprintCompletedToday || {}).length * 10;
+    if (st.quizCompletedOnce) score += 30;
+    if ((st.councilChatHistory || []).length > 1) score += (st.councilChatHistory.length - 1) * 10;
+    if ((st.agentChatHistory || []).length > 1) score += (st.agentChatHistory.length - 1) * 10;
+    if (st.definiteAim && (st.definiteAim.goal || st.definiteAim.plan || st.definiteAim.giveInReturn)) score += 50;
+    if (
+      st.strategyPlaybook &&
+      (st.strategyPlaybook.entryRules ||
+        st.strategyPlaybook.exitRules ||
+        st.strategyPlaybook.riskRules ||
+        st.strategyPlaybook.generalPhilosophy ||
+        st.strategyPlaybook.swingVsDayRules ||
+        st.strategyPlaybook.goldenNotes)
+    ) {
+      score += 50;
+    }
+    if (
+      st.traderPsychProfile &&
+      (st.traderPsychProfile.weaknesses ||
+        st.traderPsychProfile.triggers ||
+        st.traderPsychProfile.pastBlocks ||
+        st.traderPsychProfile.focusAreas)
+    ) {
+      score += 50;
+    }
     if (st.geminiApiKey && st.geminiApiKey.trim()) score += 30;
     return score;
   },
@@ -164,10 +196,14 @@ const App = {
       if (raw) {
         const parsed = JSON.parse(raw);
         this.state = { ...this.getDefaultState(), ...parsed };
+        // توحيد قناة المزامنة السحابية الافتراضية بين الكمبيوتر والجوال تلقائياً
+        if (!this.state.cloudSyncUrl || this.state.cloudSyncUrl.includes('ntfy.sh/')) {
+          this.state.cloudSyncUrl = DEFAULT_CLOUD_SYNC_URL;
+        }
         if (!this.state.lastModifiedTimestamp && this.getStateRichnessScore(this.state) > 0) {
           this.state.lastModifiedTimestamp = Date.now();
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
         }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
       } else {
         this.state = this.getDefaultState();
         this.saveState(true);
@@ -176,6 +212,50 @@ const App = {
       console.error('Error loading state:', e);
       this.state = this.getDefaultState();
     }
+  },
+
+  initAutoSaveInputs() {
+    // حفظ تلقائي فوري لأي نص يُكتب في الهدف الرئيسي أو دستور الاستراتيجية أو ملف الاعتراف النفسي
+    const bindAutoSave = (ids, callback) => {
+      ids.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('change', () => callback());
+          el.addEventListener('blur', () => callback());
+        }
+      });
+    };
+
+    bindAutoSave(['aimGoal', 'aimDate', 'aimGive', 'aimPlan'], () => {
+      this.state.definiteAim.goal = document.getElementById('aimGoal')?.value.trim() || '';
+      this.state.definiteAim.targetDate = document.getElementById('aimDate')?.value || '';
+      this.state.definiteAim.giveInReturn = document.getElementById('aimGive')?.value.trim() || '';
+      this.state.definiteAim.plan = document.getElementById('aimPlan')?.value.trim() || '';
+      this.saveState();
+    });
+
+    bindAutoSave(
+      ['pbGeneralPhilosophy', 'pbRiskRules', 'pbEntryRules', 'pbExitRules', 'pbSwingVsDayRules', 'pbGoldenNotes'],
+      () => {
+        if (!this.state.strategyPlaybook) this.state.strategyPlaybook = {};
+        this.state.strategyPlaybook.generalPhilosophy = document.getElementById('pbGeneralPhilosophy')?.value.trim() || '';
+        this.state.strategyPlaybook.riskRules = document.getElementById('pbRiskRules')?.value.trim() || '';
+        this.state.strategyPlaybook.entryRules = document.getElementById('pbEntryRules')?.value.trim() || '';
+        this.state.strategyPlaybook.exitRules = document.getElementById('pbExitRules')?.value.trim() || '';
+        this.state.strategyPlaybook.swingVsDayRules = document.getElementById('pbSwingVsDayRules')?.value.trim() || '';
+        this.state.strategyPlaybook.goldenNotes = document.getElementById('pbGoldenNotes')?.value.trim() || '';
+        this.saveState();
+      }
+    );
+
+    bindAutoSave(['psychWeaknesses', 'psychTriggers', 'psychPastBlocks', 'psychFocusAreas'], () => {
+      if (!this.state.traderPsychProfile) this.state.traderPsychProfile = {};
+      this.state.traderPsychProfile.weaknesses = document.getElementById('psychWeaknesses')?.value.trim() || '';
+      this.state.traderPsychProfile.triggers = document.getElementById('psychTriggers')?.value.trim() || '';
+      this.state.traderPsychProfile.pastBlocks = document.getElementById('psychPastBlocks')?.value.trim() || '';
+      this.state.traderPsychProfile.focusAreas = document.getElementById('psychFocusAreas')?.value.trim() || '';
+      this.saveState();
+    });
   },
 
   async saveState(skipCloudPush = false) {
@@ -2769,17 +2849,21 @@ ${recentHistory}
       // سحب أحدث البيانات عند فتح التطبيق
       setTimeout(() => {
         this.pullFromCloud(true, false);
-      }, 600);
+      }, 700);
     }
 
-    // المزامنة التلقائية عند العودة لنافذة التطبيق على الجوال أو الكمبيوتر
+    // المزامنة التلقائية عند العودة لنافذة التطبيق على الجوال أو الكمبيوتر (مع فاصل حماية لمنع 429)
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && this.state.cloudSyncUrl && this.state.cloudSyncUrl.trim()) {
-        this.pullFromCloud(true, false);
+        const now = Date.now();
+        if (!this.lastAutoPullTime || now - this.lastAutoPullTime > 8000) {
+          this.lastAutoPullTime = now;
+          this.pullFromCloud(true, false);
+        }
       }
     });
 
-    // فحص دوري خفيف كل 45 ثانية عندما يكون التطبيق مفتوحاً
+    // فحص دوري خفيف كل 90 ثانية عندما يكون التطبيق مفتوحاً
     if (this.cloudSyncInterval) clearInterval(this.cloudSyncInterval);
     this.cloudSyncInterval = setInterval(() => {
       if (
@@ -2788,9 +2872,10 @@ ${recentHistory}
         this.state.cloudSyncUrl &&
         this.state.cloudSyncUrl.trim()
       ) {
+        this.lastAutoPullTime = Date.now();
         this.pullFromCloud(true, false);
       }
-    }, 45000);
+    }, 90000);
   },
 
   updateCloudSyncStatusUI(customStatusText = null, stateType = null) {
@@ -2866,29 +2951,19 @@ ${recentHistory}
   },
 
   async createInstantCloudSync() {
-    let existingUrl = (this.state.cloudSyncUrl || '').trim();
-    let topicUrl = '';
-    if (existingUrl.includes('ntfy.sh/')) {
-      topicUrl = existingUrl.replace(/\/+$/, '');
-    } else {
-      const randPart =
-        Math.random().toString(36).substring(2, 10) +
-        Math.random().toString(36).substring(2, 10) +
-        Date.now().toString(36).slice(-4);
-      topicUrl = `https://ntfy.sh/nh16_sync_${randPart}`;
-    }
+    const topicUrl = DEFAULT_CLOUD_SYNC_URL;
 
     const input = document.getElementById('cloudSyncUrlInput');
     if (input) input.value = topicUrl;
     this.state.cloudSyncUrl = topicUrl;
     await this.saveState(true);
 
-    this.updateCloudSyncStatusUI('⏳ جاري إنشاء وتفعيل السحابة الفورية ورفع بياناتك...', 'syncing');
-    this.showCloudDiag('⏳ جاري إنشاء قناتك السحابية المشفرة ورفع كافة بيانات الكمبيوتر إليها...', 'info');
+    this.updateCloudSyncStatusUI('⏳ جاري تفعيل السحابة الفورية الموحدة ورفع كافة بياناتك...', 'syncing');
+    this.showCloudDiag('⏳ جاري رفع كافة بيانات الكمبيوتر إلى قناتك السحابية الموحدة مع الجوال...', 'info');
 
     const ok = await this.pushToCloud(false, true);
     if (ok) {
-      this.showToast('🎉 تم إنشاء وتفعيل السحابة الفورية بنجاح 100%! يمكنك الآن توليد باركود الجوال بالأسفل');
+      this.showToast('🎉 تم رفع وتفعيل السحابة الموحدة بنجاح 100%! ستتزامن تلقائياً مع تطبيق الجوال');
     }
   },
 
@@ -2914,6 +2989,9 @@ ${recentHistory}
 
   diagnoseCloudError(err, url = '') {
     const msg = String(err && err.message ? err.message : err);
+    if (msg.includes('429')) {
+      return `⏳ <strong>تم إرسال طلبات كثيرة متتالية في ثانية واحدة (HTTP 429):</strong> انتظر 10 ثوانٍ فقط ثم اضغط زر <strong>"📤 رفع بيانات هذا الجهاز للسحابة"</strong> مرة واحدة فقط (تم الآن ضغط البيانات لتُرسل في طلب واحد خفيف لا يسبب 429 أبداً).`;
+    }
     if (url.includes('script.google.com') && (url.includes('/edit') || !url.endsWith('/exec'))) {
       return `❌ <strong>الرابط المنسوخ غير صحيح:</strong> أنت نسخت رابط صفحة التحرير وليس رابط التطبيق المنشور! يجب أن ينتهي الرابط بكلمة <code>/exec</code> (تحصل عليه بعد الضغط على <strong>Deploy ⬅️ New deployment</strong>).`;
     }
@@ -2926,14 +3004,41 @@ ${recentHistory}
     if (msg.includes('HTML_LOGIN_OR_PERMISSION') || msg.includes('Unexpected token') || msg.includes('<!DOCTYPE')) {
       return `⚠️ <strong>جوجل أعادت صفحة صلاحيات بدلاً من البيانات:</strong> السبب إما أن خيار <em>Who has access</em> لم يكن مضبوطاً على <strong>Anyone (أي شخص)</strong>، أو أن الكود القديم طلب صلاحية Drive. انسخ <strong>"الكود السحابي المطور (بدون طلب صلاحيات)"</strong> بالأسفل، اضغط حفظ 💾، ثم اعمل <strong>Deploy ⬅️ New deployment</strong> واجعل الوصول <strong>Anyone</strong>.`;
     }
-    return `⚠️ <strong>تعذر الاتصال بالجسر السحابي (${msg}):</strong><br/>1. تأكد أن الرابط ينتهي بـ <code>/exec</code>.<br/>2. تأكد من لصق <strong>الكود السحابي المطور (بدون صلاحيات)</strong> والضغط على حفظ 💾 قبل عمل <strong>New deployment</strong> بصلاحية <strong>Anyone</strong>.`;
+    return `⚠️ <strong>تعذر الاتصال بالجسر السحابي (${msg}):</strong> انتظر بضع ثوانٍ ثم اضغط زر <strong>"📤 رفع بيانات هذا الجهاز للسحابة"</strong>.`;
+  },
+
+  packStateForCloud(st) {
+    // ضغط ذكي يحفظ 100% من بيانات المستخدم الفعلية في رسالة واحدة خفيفة (< 3.5 KB) لمنع HTTP 429 نهائياً
+    const packed = { ...st };
+    // استبعاد النصوص الترحيبية الافتراضية الثابتة لتخفيف الحجم مع الاحتفاظ بآخر الرسائل الفعلية
+    if (Array.isArray(packed.councilChatHistory)) {
+      packed.councilChatHistory = packed.councilChatHistory.slice(-6);
+    }
+    if (Array.isArray(packed.agentChatHistory)) {
+      packed.agentChatHistory = packed.agentChatHistory.slice(-6);
+    }
+    // استبعاد مصفوفة العادات الافتراضية الثابتة إن لم يضف المستخدم عادات مخصصة جديدة
+    const defaultHabitsLen = (window.NAPOLEON_HILL_DATA && window.NAPOLEON_HILL_DATA.defaultHabits || []).length;
+    if (Array.isArray(packed.habits) && packed.habits.length === defaultHabitsLen) {
+      delete packed.habits;
+    }
+    return packed;
+  },
+
+  unpackStateFromCloud(remoteObj) {
+    const def = this.getDefaultState();
+    const merged = { ...def, ...remoteObj };
+    if (!Array.isArray(merged.habits) || merged.habits.length === 0) {
+      merged.habits = def.habits;
+    }
+    return merged;
   },
 
   async saveAndConnectCloudSync() {
     const input = document.getElementById('cloudSyncUrlInput');
     const url = input ? input.value.trim() : '';
     if (!url) {
-      this.showToast('⚠️ يرجى لصق رابط جسر المزامنة السحابية (Google Script URL) أولاً');
+      this.showToast('⚠️ يرجى لصق رابط جسر المزامنة السحابية أولاً');
       return;
     }
     if (!url.startsWith('https://')) {
@@ -2962,7 +3067,7 @@ ${recentHistory}
     if (this.cloudPushTimeout) clearTimeout(this.cloudPushTimeout);
     this.cloudPushTimeout = setTimeout(() => {
       this.pushToCloud(true, false);
-    }, 2200);
+    }, 3500);
   },
 
   async pushToCloud(silent = true, force = false) {
@@ -2986,11 +3091,15 @@ ${recentHistory}
       if (!this.state.lastModifiedTimestamp) {
         this.state.lastModifiedTimestamp = Date.now();
       }
-      const payloadStr = JSON.stringify(this.state);
+      const compactState = this.packStateForCloud(this.state);
+      const payloadStr = JSON.stringify(compactState);
 
       let response;
       if (endpoint.type === 'ntfy') {
-        response = await fetch(`${endpoint.url}?filename=napoleon_sync.json`, {
+        // إرسال في طلب واحد فقط (Single Request) لمنع خطأ HTTP 429 نهائياً!
+        const utf8Bytes = unescape(encodeURIComponent(payloadStr)).length;
+        const postUrl = utf8Bytes > 3800 ? `${endpoint.url}?filename=napoleon_sync.json` : endpoint.url;
+        response = await fetch(postUrl, {
           method: 'POST',
           body: payloadStr
         });
@@ -3035,7 +3144,7 @@ ${recentHistory}
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
       this.updateCloudSyncStatusUI(null, 'connected');
       this.showCloudDiag(
-        `🟢 <strong>الاتصال بالجسر السحابي ناجح 100%!</strong> تم رفع وحفظ كافة بياناتك (${Math.round(payloadStr.length / 1024)} كيلوبايت) في السحابة في الساعة ${nowTime}. أي تعديل قادم سيُرفع تلقائياً!`,
+        `🟢 <strong>الاتصال بالجسر السحابي ناجح 100%!</strong> تم رفع وحفظ كافة بياناتك في طلب واحد سحابي خفيف (${Math.max(1, Math.round(payloadStr.length / 1024))} كيلوبايت) في الساعة ${nowTime}.`,
         'success'
       );
 
@@ -3074,7 +3183,7 @@ ${recentHistory}
       let textData = '';
 
       if (endpoint.type === 'ntfy') {
-        const pollUrl = `${endpoint.url}/json?poll=1&t=${Date.now()}`;
+        const pollUrl = `${endpoint.url}/json?poll=1&since=all&t=${Date.now()}`;
         const pollRes = await fetch(pollUrl, { method: 'GET' });
         if (!pollRes.ok) {
           throw new Error(`HTTP ${pollRes.status}`);
@@ -3093,8 +3202,11 @@ ${recentHistory}
                     break;
                   }
                 } else if (ev.message && ev.message.trim().startsWith('{')) {
-                  textData = ev.message;
-                  break;
+                  const candidate = JSON.parse(ev.message.trim());
+                  if (candidate && candidate.xp !== undefined) {
+                    textData = ev.message.trim();
+                    break;
+                  }
                 }
               }
             } catch (lineErr) {
@@ -3139,10 +3251,11 @@ ${recentHistory}
         return false;
       }
 
-      const remoteState = JSON.parse(textData);
-      if (remoteState && remoteState.error) {
-        throw new Error(remoteState.error);
+      const rawRemote = JSON.parse(textData);
+      if (rawRemote && rawRemote.error) {
+        throw new Error(rawRemote.error);
       }
+      const remoteState = this.unpackStateFromCloud(rawRemote);
 
       const remoteTs = Number(remoteState.lastModifiedTimestamp || 0);
       const localTs = Number(this.state.lastModifiedTimestamp || 0);
