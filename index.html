@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#090D16" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>منظومة قوانين النجاح الـ 16 - نابليون هيل</title>
+  <title>منظومة النجاح والتداول الاحترافي — نابليون هيل وأساطير التداول</title>
   <link rel="manifest" href="./manifest.json" />
-  <link rel="stylesheet" href="./css/styles.css?v=6" />
+  <link rel="stylesheet" href="./css/styles.css?v=20" />
 </head>
 <body>
 
@@ -16,28 +16,44 @@
     <!-- ==================== القائمة الجانبية (Desktop Sidebar) ==================== -->
     <aside class="sidebar">
       <div class="brand-header">
-        <div class="brand-emblem">16</div>
+        <div class="brand-emblem" title="منظومة النجاح والتداول الاحترافي">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFF9DF"/>
+                <stop offset="50%" stop-color="#D4AF37"/>
+                <stop offset="100%" stop-color="#9A7B1C"/>
+              </linearGradient>
+            </defs>
+            <!-- تاج السيادة والقمة الصاعدة للأسواق والنجاح -->
+            <path d="M3 18L4.5 9L9 13.5L12 4.5L15 13.5L19.5 9L21 18H3Z" fill="url(#goldGrad)" stroke="#FFE898" stroke-width="0.75" stroke-linejoin="round"/>
+            <circle cx="12" cy="4" r="1.5" fill="#FFF8DB"/>
+            <circle cx="4.5" cy="8.2" r="1.2" fill="#FFF8DB"/>
+            <circle cx="19.5" cy="8.2" r="1.2" fill="#FFF8DB"/>
+            <rect x="3" y="19.5" width="18" height="2.5" rx="1.2" fill="url(#goldGrad)"/>
+          </svg>
+        </div>
         <div class="brand-titles">
-          <h1>فلسفة النجاح</h1>
-          <p>نابليون هيل • القوانين الـ 16</p>
+          <h1>منظومة النجاح والتداول</h1>
+          <p>قوانين هيل الـ 16 • سيكولوجيا أساطير السوق</p>
         </div>
       </div>
 
-      <!-- بطاقة مستوى المستخدم في القائمة الجانبية -->
+      <!-- بطاقة مستوى المستخدم ورتبته في القائمة الجانبية -->
       <div class="sidebar-profile">
         <div class="profile-top">
-          <div class="rank-badge">
-            <span id="sidebarRankIcon">🌱</span>
-            <span id="sidebarRankTitle">طالب فلسفة النجاح</span>
+          <div class="rank-badge" title="الرتبة الحالية">
+            <span class="rank-icon-wrapper" id="sidebarRankIcon">🌱</span>
+            <span class="rank-title-text" id="sidebarRankTitle">طالب فلسفة النجاح</span>
           </div>
-          <span class="streak-pill" id="sidebarStreak">🔥 0 يوم</span>
+          <span class="streak-pill" id="sidebarStreak" title="سلسلة الالتزام والانضباط اليومي">🔥 0 يوم</span>
         </div>
         <div class="xp-bar-container">
           <div class="xp-bar-fill" id="sidebarXpFill" style="width: 10%;"></div>
         </div>
         <div class="xp-meta">
           <span id="sidebarXpText">0 XP</span>
-          <span id="sidebarNextRankText">المستوى التالي: 150 XP</span>
+          <span id="sidebarNextRankText">الهدف: 150 XP</span>
         </div>
       </div>
 
@@ -91,8 +107,8 @@
       <!-- الشريط العلوي -->
       <header class="top-header">
         <div class="page-title-group">
-          <h2 id="currentViewTitle">📊 لوحة التحكم الشاملة</h2>
-          <p id="currentViewSubtitle">نظرة متكاملة على توازنك في قوانين النجاح الستة عشر وعاداتك اليومية</p>
+          <h2 id="currentViewTitle">👑 مركز القيادة والتحكم الشامل</h2>
+          <p id="currentViewSubtitle">نظرة متكاملة تجمع قوانين النجاح الـ 16، سيكولوجيا التداول المنضبط، ونبض الأداء اليومي</p>
         </div>
         <div class="top-actions">
           <button class="btn btn-gold btn-sm" onclick="App.openNotificationsModal()">
@@ -1592,8 +1608,8 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- ملفات الجافاسكريبت -->
-  <script src="./js/lawsData.js?v=18"></script>
-  <script src="./js/mytmCourseData.js?v=18"></script>
-  <script src="./js/app.js?v=18"></script>
+  <script src="./js/lawsData.js?v=20"></script>
+  <script src="./js/mytmCourseData.js?v=20"></script>
+  <script src="./js/app.js?v=20"></script>
 </body>
 </html>
