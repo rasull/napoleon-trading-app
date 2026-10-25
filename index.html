@@ -536,6 +536,7 @@
           <button class="sub-tab" onclick="App.switchTradingTab('detach', this)">🔄 التفريغ بعد الصفقة (Detach & Reset)</button>
           <button class="sub-tab" onclick="App.switchTradingTab('academy', this)">🎓 أكاديمية الكورس (12 خطوة • 63 درساً)</button>
           <button class="sub-tab" onclick="App.switchTradingTab('tenk', this)">🚀 شيك لست $10K/Month ومحطة الأعصاب</button>
+          <button class="sub-tab" onclick="App.switchTradingTab('bestloser', this)">🎯 وصايا Best Loser Wins (توم هوغارد)</button>
         </div>
 
         <!-- التبويب 1: فلتر ما قبل الصفقة وسجل الصفقات -->
@@ -835,6 +836,112 @@
             </div>
           </div>
         </div>
+
+        <!-- التبويب 7: وصايا وفلسفة Best Loser Wins (توم هوغارد) وقواعد التعزيز Pyramiding -->
+        <div id="trading-tab-bestloser" class="trading-subview" style="display: none;">
+          <!-- بطاقة عهد Best Loser Wins -->
+          <div class="aim-contract-card" style="margin-bottom: 22px; text-align: right;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+              <div>
+                <span class="contract-seal">🎯 دستور Best Loser Wins (توم هوغارد — Tom Hougaard)</span>
+                <div style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">
+                  الصفة المشتركة بين 90% من الخاسرين هي رفضهم للخسارة الصغيرة؛ الفائز الحقيقي هو أفضل من يعرف كيف يخسر!
+                </div>
+              </div>
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <button class="btn btn-outline-gold btn-sm" onclick="App.getHougaardQuickQuote()">
+                  🎲 اقتباس وتوجيه فوري من هوغارد
+                </button>
+                <button class="btn btn-gold btn-sm" onclick="App.markBestLoserReviewed()">
+                  ✅ راجعت وصايا Best Loser اليوم (+25 XP)
+                </button>
+              </div>
+            </div>
+
+            <!-- الوصايا الخمس الذهبية لتوم هوغارد -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 14px;">
+              <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 14px; line-height: 1.7;">
+                <div style="font-weight: 800; color: #F59E0B; margin-bottom: 6px; font-size: 0.95rem;">1. أفضل من يخسر هو من يفوز (Best Loser Wins)</div>
+                <div style="font-size: 0.84rem; color: #CBD5E1;">الخسارة ليست فشلاً أو عاراً؛ الخسارة هي تكلفة ممارسة هذه المهنة تماماً كما يدفع صاحب المحل إيجار مقره. اقطع الخسارة الصغيرة فوراً وببرود أعصاب تام.</div>
+              </div>
+
+              <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 10px; padding: 14px; line-height: 1.7;">
+                <div style="font-weight: 800; color: #EF4444; margin-bottom: 6px; font-size: 0.95rem;">2. ممنوع التبريد في الخاسر (Never Average Down)</div>
+                <div style="font-size: 0.84rem; color: #CBD5E1;">الخاسرون هم الذين يعززون صفقاتهم الخاسرة على أمل عودة السعر؛ هذا انتحار مالي صريح. إذا تحرك السوق ضد فرضيتك، اخرج واحمِ رأس مالك لفرصة قادمة.</div>
+              </div>
+
+              <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(52, 211, 153, 0.4); border-radius: 10px; padding: 14px; line-height: 1.7;">
+                <div style="font-weight: 800; color: #34D399; margin-bottom: 6px; font-size: 0.95rem;">3. التعزيز في الصفقة الرابحة فقط (Pyramiding)</div>
+                <div style="font-size: 0.84rem; color: #CBD5E1;">الثروات الطائلة لا تُصنع من الربح الصغير بل من بناء العقود في الاتجاه الصائب. عزز بحجمك فقط عندما يثبت السوق صحة تحليلك مع رفع وقف الخسارة لحجز الأرباح.</div>
+              </div>
+
+              <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(96, 165, 250, 0.4); border-radius: 10px; padding: 14px; line-height: 1.7;">
+                <div style="font-weight: 800; color: #60A5FA; margin-bottom: 6px; font-size: 0.95rem;">4. تحمل ألم البقاء في الربح (The Pain of Winning)</div>
+                <div style="font-size: 0.84rem; color: #CBD5E1;">الخروج المبكر من الصفقة الرابحة سببه خوف عقلك من ضياع الربح اللحظي. تحمّل هذا التوتر؛ فالجلوس على الصفقة الرابحة هو المهارة التي تميز الـ 1% عن البقية.</div>
+              </div>
+
+              <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(192, 132, 252, 0.4); border-radius: 10px; padding: 14px; line-height: 1.7;">
+                <div style="font-weight: 800; color: #C084FC; margin-bottom: 6px; font-size: 0.95rem;">5. كسر الطبيعة البشرية العادية (Invert Human Nature)</div>
+                <div style="font-size: 0.84rem; color: #CBD5E1;">عقلك البشري مبرمج للبحث عن الأمان والراحة، لذلك يهرب من الربح سريعاً ويصبر على الخسارة بأمل كاذب. تداول بعكس هذه الغريزة تماماً لتضمن السيادة في السوق.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- قسم حاسبة التعزيز الهرمي + شيك لست تقبل الخسارة -->
+          <div class="grid-2">
+            <!-- حاسبة التعزيز الهرمي الآمن (Hougaard Safe Pyramiding Model) -->
+            <div class="card card-gold">
+              <div class="card-header">
+                <div class="card-title">📐 حاسبة التعزيز الهرمي الآمن (Safe Pyramiding Calculator)</div>
+              </div>
+              <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 12px;">
+                نموذج توم هوغارد لمضاعفة الأرباح دون زيادة المخاطرة المالية الأصلية:
+              </p>
+
+              <div class="grid-3" style="gap: 10px;">
+                <div class="form-group">
+                  <label class="form-label" style="font-size: 0.8rem;">رأس المال ($):</label>
+                  <input type="number" id="pyrAccountSize" class="form-control" value="10000" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" style="font-size: 0.8rem;">المخاطرة الأصلية (%):</label>
+                  <input type="number" id="pyrRiskPct" class="form-control" value="1.0" step="0.25" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" style="font-size: 0.8rem;">مسافة الوقف (نقطة):</label>
+                  <input type="number" id="pyrStopDist" class="form-control" value="20" />
+                </div>
+              </div>
+
+              <button class="btn btn-gold" style="width: 100%; margin-top: 6px;" onclick="App.calculateHougaardPyramiding()">
+                ⚡ حساب وتوزيع عقود التعزيز الهرمي (Pyramiding)
+              </button>
+
+              <div id="pyramidingCalcResult"></div>
+            </div>
+
+            <!-- شيك لست الذهنية النخبوية قبل التداول (Best Loser Pre-Flight Checklist) -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🛡️ شيك لست ذهنية Best Loser قبل فتح المنصة</div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.86rem; line-height: 1.7; color: var(--text-secondary);">
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 14px;">
+                  <strong style="color: var(--gold-light);">1. تقبل النتيجة مسبقاً:</strong> هل تقبلت في داخلك خسارة هذه الصفقة دون أن تتأثر نفسياً أو تشعر برغبة في الانتقام؟
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 14px;">
+                  <strong style="color: var(--gold-light);">2. لا تبريد نهائياً:</strong> تعهد بعدم إضافة أي لوت إذا تحرك السعر بنقطة واحدة ضد نقطة دخولك.
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 14px;">
+                  <strong style="color: var(--gold-light);">3. خطة التعزيز جاهزة:</strong> إذا سار السعر لصالحك، أين ستنقل الوقف للدخول (Breakeven) وأين ستضيف الدفعة الثانية؟
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 14px;">
+                  <strong style="color: var(--gold-light);">4. الشجاعة أمام الشارت:</strong> الفائز الحقيقي يقطع الخسارة بفخر ويترك الأرباح تتضخم بلا هلع.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- =================================================================
@@ -1089,77 +1196,82 @@
 
         <!-- أداة 3: مجلس العقل المدبر والمستشارين الخياليين (Law #1) -->
         <div id="lab-tab-mastermind" class="lab-subview" style="display: none;">
-          <div class="grid-2">
-            <!-- تحالف العقل المدبر الواقعي -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">🤝 أعضاء تحالف العقل المدبر (Mastermind Alliance)</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">اسم الشريك / الموجه / العضو:</label>
-                <input type="text" id="mmName" class="form-control" placeholder="الاسم..." />
-              </div>
-              <div class="form-group">
-                <label class="form-label">مجال خبرته والمهارة التي يكملني بها:</label>
-                <input type="text" id="mmSkill" class="form-control" placeholder="مثال: التسويق، الإدارة المالية، البرمجة، الحكمة..." />
-              </div>
-              <div class="form-group">
-                <label class="form-label">القيمة التي أقدمها له في المقابل:</label>
-                <input type="text" id="mmValueGiven" class="form-control" placeholder="كيف أفيده وأدعم أهدافه بروح الوئام؟" />
-              </div>
-              <button class="btn btn-gold" style="width: 100%; margin-bottom: 18px;" onclick="App.addMastermindMember()">
-                ➕ إضافة إلى تحالفي (+25 XP)
-              </button>
-
-              <div id="mastermindMembersList"></div>
-            </div>
-
-            <!-- غرفة المستشارين الخياليين التفاعلية + اجتماع الطاولة المستديرة -->
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- أولاً: غرفة المستشارين الخياليين التفاعلية + اجتماع الطاولة المستديرة (عرض كامل وفسيح) -->
             <div class="card card-gold">
               <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                <div class="card-title">🏛️ غرفة المستشارين الخياليين والطاولة المستديرة (10 مستشارين)</div>
+                <div class="card-title">🏛️ غرفة المستشارين الخياليين واجتماع الطاولة المستديرة (11 مستشاراً)</div>
                 <button class="btn btn-ghost btn-sm" style="background: rgba(255,255,255,0.06); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.18);" onclick="App.clearCouncilChat()">🗑️ مسح الجلسة</button>
               </div>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.7;">
-                في كتاب <em>فكر تصبح غنياً</em>، كان نابليون هيل يعقد اجتماعاً مسائياً مع مستشاريه المختارين لحل مشكلاته. هنا يضم مجلسك <strong>10 من أعظم رواد النجاح وأساطير التداول وعلم النفس (مارك دوغلاس، بول تيودور جونز، باتريك بايلوني، د. ستينبارجر، إد سيكوتا، ونابليون هيل ورفاقه)</strong> وهم مطلعون على إحصائيات صفقاتك ودستورك وجلسة صراحتك:
+              <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.8;">
+                في كتاب <em>فكر تصبح غنياً</em>، كان نابليون هيل يعقد اجتماعاً مسائياً مع مستشاريه المختارين لحل مشكلاته. هنا يضم مجلسك <strong>جميع المستشارين الـ 11 من أعظم رواد النجاح وأساطير التداول وعلم النفس (نابليون هيل، توم هوغارد، مارك دوغلاس، بول تيودور جونز، باتريك بايلوني، د. بريت ستينبارجر، إد سيكوتا، أندرو كارنيجي، توماس إديسون، هنري فورد، وأبراهام لينكولن)</strong> وهم مطلعون على إحصائيات صفقاتك ودستورك وجلسة صراحتك:
               </p>
 
-              <div class="form-group" style="margin-bottom: 10px;">
-                <label class="form-label">👤 اختر المستشار للحوار الفردي المفتوح (أو استشر المجلس كاملاً بالأسفل):</label>
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label" style="font-weight: 700; color: var(--gold-light);">👤 استشارة فردية: اختر مستشاراً محدداً للحوار المباشر (أو اعقد اجتماعاً كاملاً مع الـ 11 مستشاراً بالأسفل):</label>
                 <select id="advisorSelect" class="form-control" onchange="App.onAdvisorSelectionChange()"></select>
               </div>
 
               <!-- بطاقة تعريف المستشار المختار وفلسفته -->
-              <div id="selectedAdvisorProfileBox" style="padding: 12px 14px; background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.28); border-radius: 10px; margin-bottom: 14px; font-size: 0.84rem; line-height: 1.7;"></div>
+              <div id="selectedAdvisorProfileBox" style="padding: 14px 16px; background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.28); border-radius: 10px; margin-bottom: 16px; font-size: 0.88rem; line-height: 1.8;"></div>
 
               <!-- أزرار مواقف تداول وحياة سريعة للطرح على المستشار أو المجلس -->
-              <div style="margin-bottom: 12px;">
-                <div style="font-size: 0.78rem; color: var(--gold-light); font-weight: 700; margin-bottom: 6px;">⚡ اطرح قضية سريعة للنقاش في المجلس:</div>
-                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.78rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.askCouncilQuickPrompt('كيف أصبر على أرباح السوينج ولا أخرج مبكراً بسبب الخوف من ارتداد السعر؟')">🌊 الصبر على أرباح السوينج</button>
-                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.78rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.askCouncilQuickPrompt('تعرضت لخسارة وأشعر برغبة في الانتقام والتعويض السريع، ماذا تأمرونني الآن؟')">🛡️ إيقاف التداول الانتقامي</button>
-                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.78rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.askCouncilQuickPrompt('أشعر بالتردد والخوف من ضغط زر الدخول رغم اكتمال شروط استراتيجيتي، كيف أكسر هذا الحاجز؟')">🎯 علاج التردد قبل الدخول</button>
-                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.78rem; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.askCouncilQuickPrompt('راجعوا بياناتي الحالية في البرنامج: ما هي أهم نصيحة توجهونها لي اليوم؟')">📊 تقييم حالتي وصفقاتي اليوم</button>
+              <div style="margin-bottom: 14px;">
+                <div style="font-size: 0.82rem; color: var(--gold-light); font-weight: 800; margin-bottom: 8px;">⚡ اطرح قضية سريعة للنقاش الجماعي في المجلس (بمشاركة جميع المستشارين الـ 11):</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.82rem; padding: 6px 12px; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.askCouncilQuickPrompt('كيف أصبر على أرباح السوينج ولا أخرج مبكراً بسبب الخوف من ارتداد السعر؟')">🌊 الصبر على أرباح السوينج</button>
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.82rem; padding: 6px 12px; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.askCouncilQuickPrompt('تعرضت لخسارة وأشعر برغبة في الانتقام والتعويض السريع، ماذا تأمرونني الآن؟')">🛡️ إيقاف التداول الانتقامي</button>
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.82rem; padding: 6px 12px; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.askCouncilQuickPrompt('أشعر بالتردد والخوف من ضغط زر الدخول رغم اكتمال شروط استراتيجيتي، كيف أكسر هذا الحاجز؟')">🎯 علاج التردد قبل الدخول</button>
+                  <button type="button" class="btn btn-outline-gold btn-sm" style="font-size: 0.82rem; padding: 6px 12px; background: rgba(15, 23, 42, 0.9); color: #FDE68A; border: 1px solid rgba(212, 175, 55, 0.45);" onclick="App.askCouncilQuickPrompt('راجعوا بياناتي الحالية في البرنامج: ما هي أهم نصيحة توجهونها لي اليوم؟')">📊 تقييم حالتي وصفقاتي اليوم</button>
                 </div>
               </div>
 
               <!-- سجل الحوار المفتوح مع المستشارين / الطاولة المستديرة -->
-              <div id="councilChatMessagesList" style="max-height: 540px; overflow-y: auto; padding: 14px; background: rgba(0,0,0,0.42); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 14px;"></div>
+              <div id="councilChatMessagesList" style="max-height: 640px; overflow-y: auto; padding: 16px; background: rgba(0,0,0,0.42); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 16px;"></div>
 
               <!-- حقل السؤال وأزرار الحوار الفردي أو الطاولة المستديرة -->
-              <div class="form-group" style="margin-bottom: 10px;">
-                <input type="text" id="advisorQuestion" class="form-control" placeholder="اكتب سؤالك، صفقتك، أو التحدي النفسي وناقش مستشارك بحوار مفتوح..." onkeydown="if(event.key==='Enter') App.consultImaginaryAdvisor()" />
+              <div class="form-group" style="margin-bottom: 12px;">
+                <input type="text" id="advisorQuestion" class="form-control" style="font-size: 0.95rem; padding: 12px 14px;" placeholder="اكتب سؤالك، صفقتك، أو التحدي النفسي واطلب استشارة المستشار أو المجلس كاملاً..." onkeydown="if(event.key==='Enter') App.consultImaginaryAdvisor()" />
               </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                 <button class="btn btn-gold" onclick="App.consultImaginaryAdvisor()">
                   💬 حاور المستشار المختار (+15 XP)
                 </button>
-                <button class="btn btn-royal" style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1.5px solid var(--gold-primary); color: #FDE68A; font-weight: 800;" onclick="App.conveneRoundtableMeeting()">
-                  👑 عقد اجتماع الطاولة المستديرة (+30 XP)
+                <button class="btn btn-royal" style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1.5px solid var(--gold-primary); color: #FDE68A; font-weight: 800; font-size: 0.95rem;" onclick="App.conveneRoundtableMeeting()">
+                  👑 عقد اجتماع الطاولة المستديرة (مشاركة الـ 11 مستشاراً) (+30 XP)
                 </button>
               </div>
 
               <div id="advisorResponseBox" style="display: none;"></div>
+            </div>
+
+            <!-- ثانياً: أعضاء تحالف العقل المدبر الواقعي (Mastermind Alliance) في الأسفل بعرض كامل -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🤝 أعضاء تحالف العقل المدبر الواقعي (Mastermind Alliance)</div>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">
+                أضف شركاء النجاح والموجهين الواقعيين في حياتك الذين يشكلون حلفك الفكري وفق القانون الأول لنابليون هيل:
+              </p>
+              <div class="grid-3" style="gap: 12px;">
+                <div class="form-group">
+                  <label class="form-label">اسم الشريك / الموجه / العضو:</label>
+                  <input type="text" id="mmName" class="form-control" placeholder="الاسم..." />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">مجال خبرته والمهارة التي يكملني بها:</label>
+                  <input type="text" id="mmSkill" class="form-control" placeholder="مثال: التسويق، الإدارة المالية، البرمجة..." />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">القيمة التي أقدمها له في المقابل:</label>
+                  <input type="text" id="mmValueGiven" class="form-control" placeholder="كيف أفيده وأدعم أهدافه بروح الوئام؟" />
+                </div>
+              </div>
+              <button class="btn btn-gold" style="width: 100%; margin-top: 6px; margin-bottom: 16px;" onclick="App.addMastermindMember()">
+                ➕ إضافة إلى تحالفي الواقعي (+25 XP)
+              </button>
+
+              <div id="mastermindMembersList"></div>
             </div>
           </div>
         </div>
@@ -1480,8 +1592,8 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- ملفات الجافاسكريبت -->
-  <script src="./js/lawsData.js?v=16"></script>
-  <script src="./js/mytmCourseData.js?v=16"></script>
-  <script src="./js/app.js?v=16"></script>
+  <script src="./js/lawsData.js?v=18"></script>
+  <script src="./js/mytmCourseData.js?v=18"></script>
+  <script src="./js/app.js?v=18"></script>
 </body>
 </html>
