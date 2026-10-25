@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>منظومة النجاح والتداول الاحترافي — نابليون هيل وأساطير التداول</title>
   <link rel="manifest" href="./manifest.json" />
-  <link rel="stylesheet" href="./css/styles.css?v=20" />
+  <link rel="stylesheet" href="./css/styles.css?v=22" />
 </head>
 <body>
 
@@ -1532,6 +1532,7 @@
               📤 استيراد نسخة احتياطية
               <input type="file" accept=".json" style="display: none;" onchange="App.importBackupFile(event)" />
             </label>
+            <button class="btn btn-outline-gold btn-sm" onclick="App.restoreSafetyBackup()" title="استرجاع آخر نسخة محفوظة تلقائياً في ذاكرة المتصفح">🔄 استرجاع نسخة الأمان التلقائية</button>
             <button class="btn btn-outline-gold btn-sm" onclick="App.linkGoogleDriveFile()">🔗 ربط بملف محلي على الويندوز</button>
             <span id="linkedFileStatus" style="font-size: 0.78rem; color: var(--text-muted);">الحفظ المحلي نشط ✅</span>
           </div>
@@ -1608,8 +1609,8 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- ملفات الجافاسكريبت -->
-  <script src="./js/lawsData.js?v=20"></script>
-  <script src="./js/mytmCourseData.js?v=20"></script>
-  <script src="./js/app.js?v=20"></script>
+  <script src="./js/lawsData.js?v=22"></script>
+  <script src="./js/mytmCourseData.js?v=22"></script>
+  <script src="./js/app.js?v=22"></script>
 </body>
 </html>
