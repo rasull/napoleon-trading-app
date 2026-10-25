@@ -87,6 +87,7 @@ const App = {
         lastEveningAlertDate: ''
       },
       tradingLogs: [],
+      preTradeChecks: [false, false, false, false, false],
       primedCheckedToday: {}, // { 'ptp_1': '2026-10-23' }
       tenKCompleted: {}, // { 'tk_1': true }
       neuralLogs: [],
@@ -264,6 +265,14 @@ const App = {
         this.state.lastModifiedTimestamp = Date.now();
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+
+      // حفظ نسخة أمان احتياطية تلقائية محلية يومية ولحظية لمنع أي فقدان للبيانات
+      try {
+        const todayStr = this.getTodayStr();
+        localStorage.setItem(`napoleon_hill_safety_backup_${todayStr}`, JSON.stringify(this.state));
+        localStorage.setItem('napoleon_hill_safety_backup_latest', JSON.stringify(this.state));
+      } catch (backupErr) {}
+
       this.checkBadges();
       this.updateSidebarProfile();
 
@@ -279,6 +288,24 @@ const App = {
     } catch (e) {
       console.error('Error saving state:', e);
     }
+  },
+
+  restoreSafetyBackup() {
+    try {
+      const todayStr = this.getTodayStr();
+      const backupRaw = localStorage.getItem(`napoleon_hill_safety_backup_${todayStr}`) || localStorage.getItem('napoleon_hill_safety_backup_latest');
+      if (backupRaw) {
+        const parsed = JSON.parse(backupRaw);
+        this.state = this.mergeRemoteWithLocalState(this.state, parsed, this.state.cloudSyncUrl, this.state.mobileHostedUrl, this.state.geminiApiKey);
+        this.saveState(true);
+        this.renderAll();
+        this.showToast('✅ تم استرجاع النسخة الاحتياطية للأعمال والشيك لست بنجاح!');
+        return true;
+      }
+    } catch (e) {
+      console.error('Error restoring safety backup:', e);
+    }
+    return false;
   },
 
   checkDailyResetAndStreak() {
@@ -3280,6 +3307,60 @@ ${recentHistory}
     return merged;
   },
 
+  mergeRemoteWithLocalState(local, remote, preservedSyncUrl, preservedMobileUrl, preservedApiKey) {
+    const def = this.getDefaultState();
+    const l = local || {};
+    const r = remote || {};
+
+    const merged = { ...def, ...l, ...r };
+
+    // الاحتفاظ بالنقاط الأعلى وسلسلة الأيام الأطول
+    merged.xp = Math.max(Number(l.xp || 0), Number(r.xp || 0));
+    merged.streak = Math.max(Number(l.streak || 1), Number(r.streak || 1));
+
+    // دمج قوائم الشيك لست والعادات والمهام اليومية بدلاً من حذفها
+    merged.habitsCompletedToday = { ...(l.habitsCompletedToday || {}), ...(r.habitsCompletedToday || {}) };
+    merged.blueprintCompletedToday = { ...(l.blueprintCompletedToday || {}), ...(r.blueprintCompletedToday || {}) };
+    merged.primedCheckedToday = { ...(l.primedCheckedToday || {}), ...(r.primedCheckedToday || {}) };
+    merged.tenKCompleted = { ...(l.tenKCompleted || {}), ...(r.tenKCompleted || {}) };
+    merged.completedActions = { ...(l.completedActions || {}), ...(r.completedActions || {}) };
+    merged.mytmCompletedLessons = { ...(l.mytmCompletedLessons || {}), ...(r.mytmCompletedLessons || {}) };
+
+    // فلتر ما قبل الصفقة
+    const lChecks = Array.isArray(l.preTradeChecks) ? l.preTradeChecks : [false, false, false, false, false];
+    const rChecks = Array.isArray(r.preTradeChecks) ? r.preTradeChecks : [false, false, false, false, false];
+    merged.preTradeChecks = lChecks.map((val, idx) => val || rChecks[idx]);
+
+    // دمج السجلات مع منع التكرار
+    const mergeArrays = (arr1, arr2) => {
+      const map = new Map();
+      (arr1 || []).forEach((item) => {
+        if (item) map.set(item.id || item.timestamp || JSON.stringify(item), item);
+      });
+      (arr2 || []).forEach((item) => {
+        if (item) map.set(item.id || item.timestamp || JSON.stringify(item), item);
+      });
+      return Array.from(map.values());
+    };
+
+    merged.tradingLogs = mergeArrays(l.tradingLogs, r.tradingLogs);
+    merged.journalEntries = mergeArrays(l.journalEntries, r.journalEntries);
+    merged.failureLogs = mergeArrays(l.failureLogs, r.failureLogs);
+    merged.neuralLogs = mergeArrays(l.neuralLogs, r.neuralLogs);
+    merged.focusSessions = mergeArrays(l.focusSessions, r.focusSessions);
+
+    // دمج الهدف الرئيسي والبليه بوك
+    merged.definiteAim = { ...(def.definiteAim || {}), ...(l.definiteAim || {}), ...(r.definiteAim || {}) };
+    merged.strategyPlaybook = { ...(def.strategyPlaybook || {}), ...(l.strategyPlaybook || {}), ...(r.strategyPlaybook || {}) };
+    merged.traderPsychProfile = { ...(def.traderPsychProfile || {}), ...(l.traderPsychProfile || {}), ...(r.traderPsychProfile || {}) };
+
+    merged.cloudSyncUrl = preservedSyncUrl || l.cloudSyncUrl || r.cloudSyncUrl || DEFAULT_CLOUD_SYNC_URL;
+    merged.mobileHostedUrl = preservedMobileUrl || l.mobileHostedUrl || r.mobileHostedUrl || '';
+    merged.geminiApiKey = preservedApiKey || l.geminiApiKey || r.geminiApiKey || '';
+
+    return merged;
+  },
+
   async saveAndConnectCloudSync() {
     const input = document.getElementById('cloudSyncUrlInput');
     const url = input ? input.value.trim() : '';
@@ -3518,13 +3599,13 @@ ${recentHistory}
         const preservedMobileUrl = this.state.mobileHostedUrl || remoteState.mobileHostedUrl || '';
         const preservedApiKey = remoteState.geminiApiKey || this.state.geminiApiKey || '';
 
-        this.state = {
-          ...this.getDefaultState(),
-          ...remoteState,
-          cloudSyncUrl: preservedSyncUrl,
-          mobileHostedUrl: preservedMobileUrl,
-          geminiApiKey: preservedApiKey
-        };
+        this.state = this.mergeRemoteWithLocalState(
+          this.state,
+          remoteState,
+          preservedSyncUrl,
+          preservedMobileUrl,
+          preservedApiKey
+        );
 
         const nowTime = new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
         this.state.lastCloudSyncTime = nowTime;
@@ -3532,7 +3613,7 @@ ${recentHistory}
         await this.saveState(true);
         this.renderAll();
         this.updateCloudSyncStatusUI(null, 'connected');
-        this.showCloudDiag(`🟢 <strong>متصل ومتزامن بنجاح!</strong> تم سحب أحدث البيانات من السحابة (${nowTime}).`, 'success');
+        this.showCloudDiag(`🟢 <strong>متصل ومتزامن بنجاح!</strong> تم دمج أحدث البيانات من السحابة دون فقدان أي عمل محلي (${nowTime}).`, 'success');
 
         if (!silent || remoteTs > localTs) {
           this.showToast('☁️ تمت مزامنة وتحديث بياناتك تلقائياً من السحابة!');
@@ -3798,18 +3879,24 @@ function doPost(e) {
   },
 
   togglePreTradeCheck(idx) {
-    this.preTradeChecks[idx] = !this.preTradeChecks[idx];
+    if (!Array.isArray(this.state.preTradeChecks)) {
+      this.state.preTradeChecks = [false, false, false, false, false];
+    }
+    this.state.preTradeChecks[idx] = !this.state.preTradeChecks[idx];
+    this.saveState();
     this.renderPreTradeFilter();
   },
 
   resetPreTradeChecks() {
-    this.preTradeChecks = [false, false, false, false, false];
+    this.state.preTradeChecks = [false, false, false, false, false];
+    this.saveState();
     this.renderPreTradeFilter();
   },
 
   renderPreTradeFilter() {
     let checkedCount = 0;
-    this.preTradeChecks.forEach((val, idx) => {
+    const checks = Array.isArray(this.state.preTradeChecks) ? this.state.preTradeChecks : [false, false, false, false, false];
+    checks.forEach((val, idx) => {
       if (val) checkedCount++;
       const box = document.getElementById(`ptc_${idx}`);
       if (box) {
@@ -5621,13 +5708,13 @@ ${
     if ('caches' in window) {
       caches.keys().then((keys) => {
         keys.forEach((k) => {
-          if (k !== 'napoleon-hill-16-laws-v20') caches.delete(k);
+          if (k !== 'napoleon-hill-16-laws-v21') caches.delete(k);
         });
       }).catch(() => {});
     }
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
       navigator.serviceWorker
-        .register('./sw.js?v=20')
+        .register('./sw.js?v=21')
         .then((reg) => reg.update())
         .catch(() => {});
     }
