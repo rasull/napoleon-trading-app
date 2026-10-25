@@ -405,7 +405,7 @@ const App = {
     });
 
     const titles = {
-      dashboard: ['📊 لوحة التحكم الشاملة', 'نظرة متكاملة على توازنك في قوانين النجاح الستة عشر وعاداتك اليومية'],
+      dashboard: ['👑 مركز القيادة والتحكم الشامل', 'نظرة متكاملة تجمع قوانين النجاح الـ 16، سيكولوجيا التداول المنضبط، ونبض الأداء اليومي'],
       laws: ['🏛️ موسوعة القوانين الـ 16 التفاعلية', 'ادرس فلسفة كل قانون، قصته التاريخية، وطبق خطواته العملية لكسب نقاط الخبرة'],
       aim: ['🎯 استوديو الهدف الرئيسي المحدد وكتاب فكر تصبح غنياً', 'صياغة وثيقة العهد الذاتي، صيغة الثقة بالنفس، وعلاج الأشباح الستة للخوف'],
       quiz: ['🧭 التقييم الذاتي والتشخيص الشامل', 'اكتشف نقاط قوتك ونقاط الاختناق في القوانين الـ 16 واحصل على روشتة عملية'],
@@ -506,18 +506,42 @@ const App = {
     const xp = this.state.xp || 0;
     const { current, next } = this.getCurrentRankInfo();
 
-    document.getElementById('sidebarRankIcon').textContent = current.icon;
-    document.getElementById('sidebarRankTitle').textContent = current.title;
-    document.getElementById('sidebarStreak').textContent = `🔥 ${this.state.streak || 1} يوم`;
-    document.getElementById('sidebarXpText').textContent = `${xp} XP`;
+    const rankIconEl = document.getElementById('sidebarRankIcon');
+    const rankTitleEl = document.getElementById('sidebarRankTitle');
+    const streakEl = document.getElementById('sidebarStreak');
+    const xpTextEl = document.getElementById('sidebarXpText');
+    const xpFillEl = document.getElementById('sidebarXpFill');
+    const nextRankEl = document.getElementById('sidebarNextRankText');
+
+    if (rankIconEl) rankIconEl.textContent = current.icon;
+    if (rankTitleEl) {
+      rankTitleEl.textContent = current.title;
+      rankTitleEl.title = current.title;
+    }
+    if (streakEl) {
+      const streak = this.state.streak || 1;
+      let streakWord = 'يوم';
+      if (streak === 1) streakWord = 'يوم';
+      else if (streak === 2) streakWord = 'يومان';
+      else if (streak >= 3 && streak <= 10) streakWord = 'أيام';
+      else streakWord = 'يوماً';
+      streakEl.innerHTML = `🔥 <span>${streak} ${streakWord}</span>`;
+    }
+    if (xpTextEl) {
+      xpTextEl.innerHTML = `<span style="color:var(--text-muted);font-weight:400;margin-left:3px;">النقاط:</span><span style="direction:ltr;unicode-bidi:isolate;font-family:monospace;font-size:0.78rem;font-weight:700;">${xp.toLocaleString()}</span> <span style="font-size:0.68rem;opacity:0.85;">XP</span>`;
+    }
 
     if (next) {
       const progress = Math.min(100, Math.round(((xp - current.minXP) / (next.minXP - current.minXP)) * 100));
-      document.getElementById('sidebarXpFill').style.width = `${Math.max(6, progress)}%`;
-      document.getElementById('sidebarNextRankText').textContent = `التالي: ${next.minXP} XP`;
+      if (xpFillEl) xpFillEl.style.width = `${Math.max(6, progress)}%`;
+      if (nextRankEl) {
+        nextRankEl.innerHTML = `<span style="color:var(--text-muted);margin-left:3px;">الهدف:</span><span style="direction:ltr;unicode-bidi:isolate;font-family:monospace;font-size:0.78rem;font-weight:600;">${next.minXP.toLocaleString()}</span> <span style="font-size:0.68rem;opacity:0.85;">XP</span>`;
+      }
     } else {
-      document.getElementById('sidebarXpFill').style.width = '100%';
-      document.getElementById('sidebarNextRankText').textContent = 'أعلى رتبة فلسفية 👑';
+      if (xpFillEl) xpFillEl.style.width = '100%';
+      if (nextRankEl) {
+        nextRankEl.innerHTML = `<span style="color:var(--gold-primary);font-weight:700;">أعلى رتبة 👑</span>`;
+      }
     }
   },
 
@@ -5597,13 +5621,13 @@ ${
     if ('caches' in window) {
       caches.keys().then((keys) => {
         keys.forEach((k) => {
-          if (k !== 'napoleon-hill-16-laws-v18') caches.delete(k);
+          if (k !== 'napoleon-hill-16-laws-v20') caches.delete(k);
         });
       }).catch(() => {});
     }
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
       navigator.serviceWorker
-        .register('./sw.js?v=18')
+        .register('./sw.js?v=20')
         .then((reg) => reg.update())
         .catch(() => {});
     }
