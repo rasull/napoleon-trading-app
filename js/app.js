@@ -88,6 +88,7 @@ const App = {
       },
       tradingLogs: [],
       preTradeChecks: [false, false, false, false, false],
+      drafts: { journal: {}, failure: {}, neural: {} },
       primedCheckedToday: {}, // { 'ptp_1': '2026-10-23' }
       tenKCompleted: {}, // { 'tk_1': true }
       neuralLogs: [],
@@ -142,7 +143,11 @@ const App = {
   },
 
   getTodayStr() {
-    return new Date().toISOString().slice(0, 10);
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   },
 
   getStateRichnessScore(st) {
@@ -255,6 +260,38 @@ const App = {
       this.state.traderPsychProfile.triggers = document.getElementById('psychTriggers')?.value.trim() || '';
       this.state.traderPsychProfile.pastBlocks = document.getElementById('psychPastBlocks')?.value.trim() || '';
       this.state.traderPsychProfile.focusAreas = document.getElementById('psychFocusAreas')?.value.trim() || '';
+      this.saveState();
+    });
+
+    // حفظ تلقائي للمسودات غير المكتملة في المختبر العملي وسجل الفشل والتدوين العصبي
+    bindAutoSave(['journalTopic', 'journalFacts', 'journalOpinions', 'journalGoldenRule'], () => {
+      if (!this.state.drafts) this.state.drafts = {};
+      this.state.drafts.journal = {
+        topic: document.getElementById('journalTopic')?.value || '',
+        facts: document.getElementById('journalFacts')?.value || '',
+        opinions: document.getElementById('journalOpinions')?.value || '',
+        golden: document.getElementById('journalGoldenRule')?.value || ''
+      };
+      this.saveState();
+    });
+
+    bindAutoSave(['failEvent', 'failLesson', 'failSeed'], () => {
+      if (!this.state.drafts) this.state.drafts = {};
+      this.state.drafts.failure = {
+        event: document.getElementById('failEvent')?.value || '',
+        lesson: document.getElementById('failLesson')?.value || '',
+        seed: document.getElementById('failSeed')?.value || ''
+      };
+      this.saveState();
+    });
+
+    bindAutoSave(['neuralTriggerInput', 'neuralReframeInput', 'neuralIdentityInput'], () => {
+      if (!this.state.drafts) this.state.drafts = {};
+      this.state.drafts.neural = {
+        trigger: document.getElementById('neuralTriggerInput')?.value || '',
+        reframe: document.getElementById('neuralReframeInput')?.value || '',
+        identity: document.getElementById('neuralIdentityInput')?.value || ''
+      };
       this.saveState();
     });
   },
@@ -1698,6 +1735,7 @@ const App = {
     }
 
     const newId = Date.now();
+    if (!this.state.journalEntries) this.state.journalEntries = [];
     this.state.journalEntries.unshift({
       id: newId,
       date: new Date().toLocaleDateString('ar-SA'),
@@ -1706,6 +1744,9 @@ const App = {
       opinions,
       golden
     });
+
+    if (this.state.drafts) this.state.drafts.journal = {};
+    this.saveState();
 
     document.getElementById('journalTopic').value = '';
     document.getElementById('journalFacts').value = '';
@@ -1734,6 +1775,18 @@ const App = {
   },
 
   renderJournalEntries() {
+    if (this.state.drafts?.journal) {
+      const d = this.state.drafts.journal;
+      const tEl = document.getElementById('journalTopic');
+      const fEl = document.getElementById('journalFacts');
+      const oEl = document.getElementById('journalOpinions');
+      const gEl = document.getElementById('journalGoldenRule');
+      if (tEl && !tEl.value && d.topic) tEl.value = d.topic;
+      if (fEl && !fEl.value && d.facts) fEl.value = d.facts;
+      if (oEl && !oEl.value && d.opinions) oEl.value = d.opinions;
+      if (gEl && !gEl.value && d.golden) gEl.value = d.golden;
+    }
+
     const list = document.getElementById('journalEntriesList');
     if (!list) return;
     const entries = this.state.journalEntries || [];
@@ -1845,7 +1898,10 @@ const App = {
       promotedToStrategy: false
     };
 
+    if (!this.state.failureLogs) this.state.failureLogs = [];
     this.state.failureLogs.unshift(newEntry);
+    if (this.state.drafts) this.state.drafts.failure = {};
+    this.saveState();
 
     document.getElementById('failEvent').value = '';
     document.getElementById('failLesson').value = '';
@@ -1914,6 +1970,16 @@ const App = {
   },
 
   renderFailureLogs() {
+    if (this.state.drafts?.failure) {
+      const d = this.state.drafts.failure;
+      const evEl = document.getElementById('failEvent');
+      const lesEl = document.getElementById('failLesson');
+      const sedEl = document.getElementById('failSeed');
+      if (evEl && !evEl.value && d.event) evEl.value = d.event;
+      if (lesEl && !lesEl.value && d.lesson) lesEl.value = d.lesson;
+      if (sedEl && !sedEl.value && d.seed) sedEl.value = d.seed;
+    }
+
     const list = document.getElementById('failureLogsList');
     if (!list) return;
     const logs = this.state.failureLogs || [];
@@ -1970,6 +2036,7 @@ const App = {
       skill: skill || 'شريك فكري ومهني',
       valueGiven: valueGiven || 'التعاون وتبادل الخبرات بروح الوئام'
     });
+    this.saveState();
 
     document.getElementById('mmName').value = '';
     document.getElementById('mmSkill').value = '';
@@ -2990,6 +3057,9 @@ ${recentHistory}
     const savePct = parseInt(document.getElementById('finSavePct')?.value, 10) || 20;
     const eduPct = parseInt(document.getElementById('finEduPct')?.value, 10) || 10;
     const livingPct = parseInt(document.getElementById('finLivingPct')?.value, 10) || 55;
+
+    this.state.savingsPlan = { income, savePct, eduPct, livingPct };
+    this.saveState();
 
     document.getElementById('finSavePctVal').textContent = `${savePct}%`;
     document.getElementById('finEduPctVal').textContent = `${eduPct}%`;
@@ -5708,13 +5778,13 @@ ${
     if ('caches' in window) {
       caches.keys().then((keys) => {
         keys.forEach((k) => {
-          if (k !== 'napoleon-hill-16-laws-v21') caches.delete(k);
+          if (k !== 'napoleon-hill-16-laws-v22') caches.delete(k);
         });
       }).catch(() => {});
     }
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
       navigator.serviceWorker
-        .register('./sw.js?v=21')
+        .register('./sw.js?v=22')
         .then((reg) => reg.update())
         .catch(() => {});
     }
