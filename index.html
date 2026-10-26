@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>منظومة النجاح والتداول الاحترافي — نابليون هيل وأساطير التداول</title>
   <link rel="manifest" href="./manifest.json" />
-  <link rel="stylesheet" href="./css/styles.css?v=22" />
+  <link rel="stylesheet" href="./css/styles.css?v=25" />
 </head>
 <body>
 
@@ -342,18 +342,67 @@
           </div>
         </div>
 
-        <!-- تبويب 2: صيغة الثقة بالنفس الخماسية -->
+        <!-- تبويب 2: صيغة الثقة بالنفس الخماسية والصيغة الشخصية المكتوبة -->
         <div id="aim-tab-confidence" class="aim-subview" style="display: none;">
-          <div class="card card-gold">
+          
+          <!-- بطاقة بنود نابليون هيل الـ 5 والمشغل الصوتي -->
+          <div class="card card-gold" style="margin-bottom: 20px;">
             <div class="card-header">
-              <div class="card-title">🦁 صيغة الثقة بالنفس (Self-Confidence Formula) - الدرس الثالث</div>
-              <button class="btn btn-gold btn-sm" onclick="App.affirmSelfConfidence()">✋ أُقر وألتزم بهذه الصيغة اليوم (+20 XP)</button>
+              <div class="card-title">🦁 صيغة الثقة بالنفس (Self-Confidence Formula) - نابليون هيل</div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-gold btn-sm" id="confidenceAudioBtn" onclick="App.toggleConfidenceAudio()">
+                  🔊 الاستماع الصوتي للصيغة
+                </button>
+                <button class="btn btn-outline-gold btn-sm" onclick="App.openFocusMeditation('confidence')">
+                  🧘‍♂️ فتح في الستوديو (432Hz)
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="App.affirmSelfConfidence()">
+                  ✋ أُقر وألتزم اليوم (+20 XP)
+                </button>
+              </div>
             </div>
             <p style="color: var(--text-secondary); margin-bottom: 18px; font-size: 0.92rem;">
-              هذه هي البنود الخمسة الحرفية التي وضعها نابليون هيل في كتابه لتحويل العقل الباطن من التردد والشك إلى الشجاعة والإقدام عبر قانون الإيحاء الذاتي:
+              هذه هي البنود الخمسة الحرفية التي وضعها نابليون هيل لتحويل العقل الباطن من التردد والشك إلى الشجاعة والإقدام. اضغط زر الاستماع لسماعها بصوت القارئ المفضل مع تظليل البند الجاري قراءته:
             </p>
             <div id="selfConfidenceList" style="display: flex; flex-direction: column; gap: 14px;"></div>
           </div>
+
+          <!-- محرر وبنك الصيغة الخاصة بالمستخدم للثقة والتمكين الذاتي -->
+          <div class="card" style="border: 1px solid var(--border-gold); background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(13, 19, 34, 0.75) 100%); margin-bottom: 20px;">
+            <div class="card-header">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.4rem;">✍️</span>
+                <div>
+                  <div class="card-title" style="color: var(--gold-primary);">صيغتي وعهدي الخاص للثقة بالنفس والتمكين (My Custom Formula)</div>
+                  <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px;">اكتب هنا توكيداتك وكلماتك الخاصة، وستُحفظ في البرنامج وتُدرج تلقائياً في القراءة الصوتية مع بنود هيل</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 14px;">
+              <textarea id="customConfidenceInput" class="form-control" rows="4" placeholder="مثال: أنا أمتلك يقيناً تاماً بقدراتي على اتخاذ القرارات الصحيحة تحت الضغط، وأقبل نتائج صفقاتي بحياد تام وبلا خوف... اكتب كلماتك هنا لتثبيتها في عقلك الباطن..." style="font-size: 0.95rem; line-height: 1.85; resize: vertical; margin-bottom: 12px;"></textarea>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <span style="font-size: 0.78rem; color: var(--text-secondary);">💡 تُحفظ التعديلات تلقائياً أثناء الكتابة، وتُزامن سحابياً بين الهاتف والكمبيوتر.</span>
+                <button class="btn btn-gold" onclick="App.saveCustomConfidenceFormula()">
+                  💾 حفظ واعتماد صيغتي الخاصة (+25 XP)
+                </button>
+              </div>
+            </div>
+
+            <!-- بطاقة عرض الصيغة الخاصة المعتمدة -->
+            <div id="renderedCustomConfidenceBox" style="margin-top: 18px; display: none;">
+              <div style="padding: 16px 20px; background: rgba(212, 175, 55, 0.1); border-right: 4px solid var(--gold-primary); border-radius: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <strong style="color: var(--gold-light); font-size: 0.92rem;">📜 صيغتك الخاصة المعتمدة حالياً في البرنامج:</strong>
+                  <span class="xp-tag" style="background: rgba(16, 185, 129, 0.2); color: #34D399; border-color: rgba(16, 185, 129, 0.4);">محفوظة ومفعلة</span>
+                </div>
+                <div id="renderedCustomConfidenceText" style="font-size: 1.02rem; line-height: 1.9; color: #FFFFFF; font-weight: 500;"></div>
+              </div>
+            </div>
+
+          </div>
+
         </div>
 
         <!-- تبويب 3: خلاصة كتاب فكر تصبح غنياً والأشباح الستة للخوف -->
@@ -772,8 +821,9 @@
                 اضغط للبدء بتهدئة جهازك العصبي
               </div>
               <div class="timer-digits" id="breathingTimerDigits" style="font-size: 3.2rem;">05</div>
-              <div style="display: flex; justify-content: center; gap: 12px; margin-top: 14px;">
+              <div style="display: flex; justify-content: center; gap: 12px; margin-top: 14px; flex-wrap: wrap;">
                 <button class="btn btn-gold" id="breathingToggleBtn" onclick="App.toggleBoxBreathing()">▶️ ابدأ تمرين التنفس (5-5-5-5)</button>
+                <button class="btn btn-outline-gold" onclick="App.openFocusMeditation('premarket')">🎧 جلسة تهيئة الجهاز العصبي الصوتية (4د)</button>
               </div>
             </div>
           </div>
@@ -792,6 +842,11 @@
               <button class="btn btn-gold" onclick="App.renderDetachProtocol('loss')">🔴 خرجت للتو من صفقة خاسرة (Loss)</button>
               <button class="btn btn-outline-gold" onclick="App.renderDetachProtocol('win')">🟢 خرجت للتو من صفقة رابحة (Win)</button>
               <button class="btn btn-ghost" onclick="App.renderDetachProtocol('missed')">🟡 فاتتني صفقة رابحة ولم أدخلها (Missed Trade)</button>
+            </div>
+            <!-- زر الإسعاف النفسي الصوتي الفوري -->
+            <div style="margin-bottom: 18px; padding: 12px 16px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+              <div style="font-size: 0.86rem; color: #FCA5A5;">🛑 <strong>هل تشعر باضطراب بعد الخسارة أو رغبة في الانتقام؟</strong> ابتعد فوراً عن الشارت واستعد هدوءك.</div>
+              <button class="btn btn-gold btn-sm" onclick="App.openFocusMeditation('reset')">🧘‍♂️ جلسة إيقاف النزيف العاطفي والتفريغ الصوتي (3د)</button>
             </div>
             <div id="detachProtocolContentBox"></div>
           </div>
@@ -1412,22 +1467,132 @@
     </div>
   </div>
 
-  <!-- ==================== نافذة وضع التأمل والإيحاء الذاتي (Auto-Suggestion Focus Mode) ==================== -->
+  <!-- ==================== ستوديو الصوت الذهني والتأمل العلاجي (Mindset & Audio Sanctuary) ==================== -->
   <div class="modal-backdrop" id="meditationModal" onclick="if(event.target===this) App.closeFocusMeditation()">
-    <div class="modal-content" style="text-align: center; background: linear-gradient(135deg, #0D1322 0%, #171206 100%); border-width: 2px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-        <span class="contract-seal">🧘‍♂️ جلسة الإيحاء الذاتي والتأمل في الهدف الرئيسي</span>
+    <div class="modal-content meditation-modal-content" style="max-width: 820px; max-height: 92vh; overflow-y: auto; text-align: center; background: linear-gradient(135deg, #090E18 0%, #151109 100%); border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 15px 45px rgba(0,0,0,0.85);">
+      
+      <!-- رأس النافذة -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 12px; margin-bottom: 16px;">
+        <div style="text-align: right;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.4rem;">🎙️</span>
+            <h3 style="margin: 0; font-size: 1.25rem; color: var(--gold-primary);">ستوديو الصوت والتأمل الذهني الموجه</h3>
+          </div>
+          <p style="margin: 3px 0 0; font-size: 0.8rem; color: var(--text-secondary);">جلسات إيحاء ذاتي صوتية، تنفس توازني، وتفريغ عاطفي مصممة لتهدئة الجهاز العصبي والبرمجة الباطنية</p>
+        </div>
         <button class="modal-close" onclick="App.closeFocusMeditation()">✕</button>
       </div>
-      <p style="color: var(--text-secondary); font-size: 0.9rem; max-width: 620px; margin: 0 auto 16px;">
-        تنفس بعمق، اقرأ وثيقة هدفك الرئيسي بصوت مسموع، وأغمض عينيك متخيلاً نفسك وقد حققت هذا الهدف بالفعل واشعر بالامتنان والثقة التامة.
-      </p>
-      <div class="contract-statement" id="meditationAimText" style="font-size: 1.4rem; margin: 18px 0;"></div>
-      <div class="timer-digits" id="meditationTimerDigits" style="font-size: 2.8rem;">05:00</div>
-      <div style="display: flex; justify-content: center; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
-        <button class="btn btn-gold" id="meditationTimerBtn" onclick="App.toggleMeditationTimer()">▶️ بدء مؤقت التأمل (5 دقائق)</button>
-        <button class="btn btn-outline-gold" onclick="App.completeMeditationSession()">✨ أتممت القراءة والتخيل بإيمان (+25 XP)</button>
+
+      <!-- أزرار اختيار وضع الجلسة الذهنية -->
+      <div class="meditation-modes-nav" id="meditationModesNav" style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px;">
+        <button class="meditation-mode-btn active" id="medBtn-aim" onclick="App.switchMeditationMode('aim')">
+          👑 هدف الحياة وقوانين هيل (5د)
+        </button>
+        <button class="meditation-mode-btn" id="medBtn-confidence" onclick="App.switchMeditationMode('confidence')">
+          🦁 صيغة الثقة بالنفس (4د)
+        </button>
+        <button class="meditation-mode-btn" id="medBtn-premarket" onclick="App.switchMeditationMode('premarket')">
+          🛡️ تهيئة قبل التداول (4د)
+        </button>
+        <button class="meditation-mode-btn" id="medBtn-reset" onclick="App.switchMeditationMode('reset')">
+          🛑 إيقاف النزيف بعد الخسارة (3د)
+        </button>
+        <button class="meditation-mode-btn" id="medBtn-breathing" onclick="App.switchMeditationMode('breathing')">
+          🫁 تنفس صندوقي 4-4-4-4 (3د)
+        </button>
+        <button class="meditation-mode-btn" id="medBtn-myvoice" onclick="App.switchMeditationMode('myvoice')">
+          🎙️ تسجيلي بصوتي الخاص
+        </button>
       </div>
+
+      <!-- دائرة التنفس التوازني النابضة (Breathing Orb) -->
+      <div class="breathing-orb-container" id="breathingOrbContainer">
+        <div class="breathing-orb" id="breathingOrbElement"></div>
+        <div class="orb-center-info">
+          <div class="orb-timer" id="meditationTimerDigits">05:00</div>
+          <div class="orb-phase-pill" id="meditationPhasePill">جاهز للبدء</div>
+        </div>
+      </div>
+
+      <!-- صندوق النص الإرشادي المقروء والمسموع -->
+      <div class="meditation-script-box" id="meditationScriptBox"></div>
+
+      <!-- شريط تخصيص واختيار الصوت والنبرة والسرعة -->
+      <div class="meditation-voice-bar" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <!-- اختيار القارئ -->
+        <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 260px; text-align: right;">
+          <span style="font-size: 1.3rem;">🗣️</span>
+          <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 0.78rem; color: var(--gold-light); font-weight: 700;">قارئ التأمل المفضل (Voice):</span>
+              <span id="voiceTypeBadge" class="xp-tag" style="font-size: 0.7rem; padding: 1px 8px;">صوت طبيعي</span>
+            </div>
+            <select id="meditationVoiceSelect" class="form-control" style="padding: 6px 10px; font-size: 0.84rem; background: rgba(13, 19, 34, 0.95); border-color: rgba(212, 175, 55, 0.4); color: #fff; width: 100%; border-radius: 8px;" onchange="App.onMeditationVoiceSelected(this.value)">
+              <!-- يتم ملؤها تلقائياً بأصوات المتصفح الطبيعية -->
+            </select>
+          </div>
+        </div>
+
+        <!-- زر تجربة الصوت المباشر -->
+        <div style="display: flex; gap: 8px; align-items: flex-end;">
+          <button class="btn btn-outline-gold btn-sm" onclick="App.previewSelectedVoice()" title="استمع لنموذج تجريبي من هذا الصوت لمدة ثوانٍ">
+            🎧 تجربة الصوت
+          </button>
+        </div>
+
+        <!-- متحكمات السرعة والنبرة -->
+        <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 6px;" title="سرعة القراءة المتأنية للتأمل">
+            <span style="font-size: 0.75rem; color: var(--text-secondary);">السرعة:</span>
+            <input type="range" id="meditationVoiceRate" min="0.65" max="1.15" step="0.05" value="0.82" style="width: 80px; accent-color: var(--gold-primary); cursor: pointer;" oninput="App.onMeditationRateChange(this.value)" />
+            <span id="meditationVoiceRateLabel" style="font-size: 0.75rem; color: var(--gold-light); font-family: monospace; min-width: 38px;">0.82x</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;" title="طبقة ونبرة الصوت">
+            <span style="font-size: 0.75rem; color: var(--text-secondary);">النبرة:</span>
+            <input type="range" id="meditationVoicePitch" min="0.75" max="1.25" step="0.05" value="0.95" style="width: 80px; accent-color: var(--gold-primary); cursor: pointer;" oninput="App.onMeditationPitchChange(this.value)" />
+            <span id="meditationVoicePitchLabel" style="font-size: 0.75rem; color: var(--gold-light); font-family: monospace; min-width: 30px;">0.95</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- قسم تسجيل وسماع وثيقة الهدف بصوتي الخاص -->
+      <div id="meditationVoiceMemoSection" style="display: none; margin-bottom: 16px; padding: 14px; background: rgba(212, 175, 55, 0.08); border: 1px dashed rgba(212, 175, 55, 0.35); border-radius: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="text-align: right;">
+            <div style="font-weight: 700; color: var(--gold-light); font-size: 0.92rem;">🎙️ تسجيلك الصوتي لعهد وثيقة الهدف</div>
+            <div style="font-size: 0.78rem; color: var(--text-secondary);" id="voiceMemoStatusLabel">سجّل وثيقة هدفك بصوتك الخاص واستمع لها يومياً لتثبيت الإيمان الباطني</div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <button class="btn btn-outline-gold btn-sm" id="voiceMemoRecordBtn" onclick="App.togglePersonalVoiceRecording()">
+              🎙️ بدء تسجيل صوتي
+            </button>
+            <button class="btn btn-gold btn-sm" id="voiceMemoPlayBtn" onclick="App.playPersonalVoiceMemo()" style="display: none;">
+              ▶️ استماع لتسجيلي
+            </button>
+            <button class="btn btn-ghost btn-sm" id="voiceMemoDeleteBtn" onclick="App.deletePersonalVoiceMemo()" style="display: none; color: #F87171;">
+              🗑️ حذف
+            </button>
+          </div>
+        </div>
+        <audio id="personalVoiceAudioElement" style="display: none;"></audio>
+      </div>
+
+      <!-- شريط أدوات التحكم الصوتي والمؤقت -->
+      <div class="meditation-controls-row">
+        <button class="btn btn-gold" id="meditationVoiceGuideBtn" onclick="App.toggleMeditationVoiceGuide()">
+          🔊 تشغيل الإرشاد الصوتي (Voice Guide)
+        </button>
+        <button class="btn btn-outline-gold" id="meditationBinauralBtn" onclick="App.toggleBinauralBeats()">
+          🎵 ذبذبات ألفا 432Hz (هدوء ذهني)
+        </button>
+        <button class="btn btn-ghost" id="meditationTimerBtn" onclick="App.toggleMeditationTimer()">
+          ⏱️ إيقاف/استئناف المؤقت
+        </button>
+        <button class="btn btn-outline-gold" onclick="App.completeMeditationSession()">
+          ✨ أتممت الجلسة (+30 XP)
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -1609,8 +1774,8 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- ملفات الجافاسكريبت -->
-  <script src="./js/lawsData.js?v=22"></script>
-  <script src="./js/mytmCourseData.js?v=22"></script>
-  <script src="./js/app.js?v=22"></script>
+  <script src="./js/lawsData.js?v=25"></script>
+  <script src="./js/mytmCourseData.js?v=25"></script>
+  <script src="./js/app.js?v=25"></script>
 </body>
 </html>
