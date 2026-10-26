@@ -14,6 +14,23 @@ const App = {
   focusSelectedMinutes: 30,
   meditationInterval: null,
   meditationSecondsRemaining: 5 * 60,
+  meditationDuration: 5 * 60,
+  meditationAudio: {
+    mode: 'aim',
+    isPlayingVoice: false,
+    synthSentences: [],
+    currentUtteranceIdx: 0,
+    synthTimeout: null,
+    binauralActive: false,
+    audioCtx: null,
+    oscLeft: null,
+    oscRight: null,
+    gainNode: null,
+    mediaRecorder: null,
+    recordedChunks: [],
+    isRecording: false,
+    cycleSec: 0
+  },
   alarmClockInterval: null,
   wisdomTimerInterval: null,
   preTradeChecks: [false, false, false, false, false],
@@ -33,6 +50,7 @@ const App = {
     this.initAutoSaveInputs();
     this.initNotificationsEngine();
     this.initCloudSyncEngine();
+    this.initSpeechVoices();
     this.registerServiceWorker();
   },
 
@@ -88,6 +106,9 @@ const App = {
       },
       tradingLogs: [],
       preTradeChecks: [false, false, false, false, false],
+      personalVoiceAim: '',
+      meditationVoiceSettings: { voiceURI: '', rate: 0.82, pitch: 0.95 },
+      customConfidenceFormula: '',
       drafts: { journal: {}, failure: {}, neural: {} },
       primedCheckedToday: {}, // { 'ptp_1': '2026-10-23' }
       tenKCompleted: {}, // { 'tk_1': true }
@@ -261,6 +282,23 @@ const App = {
       this.state.traderPsychProfile.pastBlocks = document.getElementById('psychPastBlocks')?.value.trim() || '';
       this.state.traderPsychProfile.focusAreas = document.getElementById('psychFocusAreas')?.value.trim() || '';
       this.saveState();
+    });
+
+    // حفظ تلقائي لصيغة الثقة بالنفس الشخصية
+    bindAutoSave(['customConfidenceInput'], () => {
+      const val = document.getElementById('customConfidenceInput')?.value.trim() || '';
+      this.state.customConfidenceFormula = val;
+      this.saveState();
+      const renderedCustomBox = document.getElementById('renderedCustomConfidenceBox');
+      const renderedCustomText = document.getElementById('renderedCustomConfidenceText');
+      if (renderedCustomBox && renderedCustomText) {
+        if (val) {
+          renderedCustomBox.style.display = 'block';
+          renderedCustomText.textContent = `« ${val} »`;
+        } else {
+          renderedCustomBox.style.display = 'none';
+        }
+      }
     });
 
     // حفظ تلقائي للمسودات غير المكتملة في المختبر العملي وسجل الفشل والتدوين العصبي
@@ -1119,13 +1157,29 @@ const App = {
       confList.innerHTML = window.NAPOLEON_HILL_DATA.selfConfidenceFormula
         .map(
           (item, idx) => `
-          <div style="padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-gold); border-radius: 12px; line-height: 1.85; font-size: 0.96rem;">
+          <div id="conf-clause-${idx}" class="conf-clause-item" style="padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; line-height: 1.85; font-size: 0.96rem;">
             <span class="law-num-badge" style="margin-left: 8px;">البند ${idx + 1}</span>
             ${item}
           </div>
         `
         )
         .join('');
+    }
+
+    // عرض الصيغة الخاصة بالمستخدم
+    const customInput = document.getElementById('customConfidenceInput');
+    if (customInput) {
+      customInput.value = this.state.customConfidenceFormula || '';
+    }
+    const renderedCustomBox = document.getElementById('renderedCustomConfidenceBox');
+    const renderedCustomText = document.getElementById('renderedCustomConfidenceText');
+    if (renderedCustomBox && renderedCustomText) {
+      if (this.state.customConfidenceFormula && this.state.customConfidenceFormula.trim()) {
+        renderedCustomBox.style.display = 'block';
+        renderedCustomText.textContent = `« ${this.state.customConfidenceFormula} »`;
+      } else {
+        renderedCustomBox.style.display = 'none';
+      }
     }
 
     // عرض الخطوات الـ 6 من كتاب فكر تصبح غنياً
@@ -1192,20 +1246,191 @@ const App = {
 
   affirmSelfConfidence() {
     this.addXP(20, 'قراءة وتأكيد صيغة الثقة بالنفس الخماسية');
+    this.showToast('🦁 تم تأكيد التزامك بصيغة الثقة بالنفس بنجاح (+20 XP)', 'success');
   },
 
-  // جلسة التأمل والإيحاء الذاتي
-  openFocusMeditation() {
-    const aim = this.state.definiteAim || {};
-    const textEl = document.getElementById('meditationAimText');
-    if (aim.goal && aim.goal.trim()) {
-      textEl.innerHTML = document.getElementById('renderedContractText').innerHTML;
-    } else {
-      textEl.textContent = '« أنا أمتلك القدرة الكاملة على تحقيق هدفي الرئيسي في الحياة، وأوجه أفكاري وأفعالي كل يوم بتركيز وإيمان وثقة نحو القمة. »';
+  saveCustomConfidenceFormula() {
+    const input = document.getElementById('customConfidenceInput');
+    const val = input ? input.value.trim() : '';
+    this.state.customConfidenceFormula = val;
+    this.saveState();
+
+    const renderedCustomBox = document.getElementById('renderedCustomConfidenceBox');
+    const renderedCustomText = document.getElementById('renderedCustomConfidenceText');
+    if (renderedCustomBox && renderedCustomText) {
+      if (val) {
+        renderedCustomBox.style.display = 'block';
+        renderedCustomText.textContent = `« ${val} »`;
+      } else {
+        renderedCustomBox.style.display = 'none';
+      }
     }
-    this.meditationSecondsRemaining = 5 * 60;
-    this.updateMeditationDigits();
-    document.getElementById('meditationModal').classList.add('open');
+
+    this.addXP(25, 'حفظ واعتماد صيغة الثقة بالنفس والتمكين الخاصة');
+    this.showToast('🦁 تم حفظ صيغتك الخاصة للثقة بالنفس بنجاح في البرنامج (+25 XP)', 'success');
+  },
+
+  // ===== الاستماع الصوتي المباشر لصيغة الثقة بالنفس =====
+  confidenceAudio: {
+    isPlaying: false,
+    currentIdx: 0,
+    synthTimeout: null,
+    clauses: []
+  },
+
+  toggleConfidenceAudio() {
+    if (this.confidenceAudio.isPlaying) {
+      this.stopConfidenceAudio();
+    } else {
+      this.startConfidenceAudio();
+    }
+  },
+
+  startConfidenceAudio() {
+    if (!('speechSynthesis' in window)) {
+      this.showToast('متصفحك لا يدعم SpeechSynthesis', 'warning');
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    if (this.confidenceAudio.synthTimeout) {
+      clearTimeout(this.confidenceAudio.synthTimeout);
+      this.confidenceAudio.synthTimeout = null;
+    }
+
+    // إيقاف إرشاد التأمل الآخر إن كان يعمل
+    this.stopMeditationVoiceGuide();
+
+    // تجهيز البنود للقراءة: الـ 5 بنود لنابليون هيل + الصيغة الخاصة بالمستخدم إن وجدت
+    const hillClauses = window.NAPOLEON_HILL_DATA.selfConfidenceFormula.map((text, idx) => ({
+      id: `conf-clause-${idx}`,
+      title: `البند رقم ${idx + 1}`,
+      text: text.replace(/<[^>]+>/g, '').trim()
+    }));
+
+    const allClauses = [...hillClauses];
+
+    if (this.state?.customConfidenceFormula && this.state.customConfidenceFormula.trim()) {
+      allClauses.push({
+        id: 'renderedCustomConfidenceBox',
+        title: 'صيغتك وعهدك الخاص للثقة بالنفس والتمكين',
+        text: this.state.customConfidenceFormula.trim()
+      });
+    }
+
+    this.confidenceAudio.clauses = allClauses;
+    this.confidenceAudio.currentIdx = 0;
+    this.confidenceAudio.isPlaying = true;
+
+    const btn = document.getElementById('confidenceAudioBtn');
+    if (btn) {
+      btn.innerHTML = '⏸️ إيقاف القراءة الصوتية';
+      btn.classList.remove('btn-gold');
+      btn.classList.add('btn-outline-gold');
+    }
+
+    this.speakNextConfidenceClause();
+    this.showToast('🦁 بدء الاستماع الصوتي لصيغة الثقة بالنفس', 'info');
+  },
+
+  speakNextConfidenceClause() {
+    if (!this.confidenceAudio.isPlaying) return;
+
+    // إزالة التظليل عن جميع البنود
+    document.querySelectorAll('.conf-clause-item').forEach((el) => el.classList.remove('active-speaking'));
+    const customBox = document.getElementById('renderedCustomConfidenceBox');
+    if (customBox) customBox.style.boxShadow = '';
+
+    if (this.confidenceAudio.currentIdx >= this.confidenceAudio.clauses.length) {
+      this.stopConfidenceAudio();
+      this.addXP(20, 'إتمام الاستماع لصيغة الثقة بالنفس كاملة');
+      this.showToast('✨ أحسنت! أتممت الاستماع لصيغة الثقة بالنفس والتمكين الذاتي (+20 XP)', 'success');
+      return;
+    }
+
+    const currentClause = this.confidenceAudio.clauses[this.confidenceAudio.currentIdx];
+
+    // تظليل البند المقروء حالياً
+    if (currentClause.id) {
+      const el = document.getElementById(currentClause.id);
+      if (el) {
+        if (currentClause.id.startsWith('conf-clause')) {
+          el.classList.add('active-speaking');
+        } else {
+          el.style.boxShadow = '0 0 20px rgba(212, 175, 55, 0.45)';
+        }
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    const utter = new SpeechSynthesisUtterance(`${currentClause.title}. ${currentClause.text}`);
+    utter.lang = 'ar-SA';
+    const st = this.state?.meditationVoiceSettings || {};
+    utter.rate = st.rate || 0.82;
+    utter.pitch = st.pitch || 0.95;
+
+    try {
+      const voices = this.getAvailableVoices();
+      const uri = st.voiceURI;
+      let chosen = null;
+      if (uri) chosen = voices.find((v) => (v.voiceURI || v.name) === uri);
+      if (!chosen && voices.length > 0) chosen = voices[0];
+      if (chosen) utter.voice = chosen;
+    } catch (e) {}
+
+    utter.onend = () => {
+      this.confidenceAudio.currentIdx++;
+      if (this.confidenceAudio.isPlaying) {
+        // وقفة تنفس واعية 1.2 ثانية بين كل بند وآخر
+        this.confidenceAudio.synthTimeout = setTimeout(() => {
+          this.speakNextConfidenceClause();
+        }, 1200);
+      }
+    };
+
+    utter.onerror = () => {
+      this.confidenceAudio.currentIdx++;
+      if (this.confidenceAudio.isPlaying) {
+        this.confidenceAudio.synthTimeout = setTimeout(() => {
+          this.speakNextConfidenceClause();
+        }, 1000);
+      }
+    };
+
+    window.speechSynthesis.speak(utter);
+  },
+
+  stopConfidenceAudio() {
+    this.confidenceAudio.isPlaying = false;
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    if (this.confidenceAudio.synthTimeout) {
+      clearTimeout(this.confidenceAudio.synthTimeout);
+      this.confidenceAudio.synthTimeout = null;
+    }
+
+    // إزالة أي تظليل
+    document.querySelectorAll('.conf-clause-item').forEach((el) => el.classList.remove('active-speaking'));
+    const customBox = document.getElementById('renderedCustomConfidenceBox');
+    if (customBox) customBox.style.boxShadow = '';
+
+    const btn = document.getElementById('confidenceAudioBtn');
+    if (btn) {
+      btn.innerHTML = '🔊 الاستماع الصوتي للصيغة';
+      btn.classList.add('btn-gold');
+      btn.classList.remove('btn-outline-gold');
+    }
+  },
+
+  // ==================== ستوديو الصوت الذهني والتأمل الموجه (Mindset & Audio Sanctuary) ====================
+  openFocusMeditation(mode = 'aim') {
+    this.meditationAudio.mode = mode || 'aim';
+    this.switchMeditationMode(this.meditationAudio.mode);
+    this.populateVoiceSelect();
+    this.updateVoiceMemoUI();
+    const modal = document.getElementById('meditationModal');
+    if (modal) modal.classList.add('open');
   },
 
   closeFocusMeditation() {
@@ -1213,7 +1438,144 @@ const App = {
       clearInterval(this.meditationInterval);
       this.meditationInterval = null;
     }
-    document.getElementById('meditationModal').classList.remove('open');
+    this.stopMeditationVoiceGuide();
+    this.stopConfidenceAudio();
+    this.stopBinauralBeats();
+    if (this.meditationAudio.isRecording) {
+      this.stopPersonalVoiceRecording();
+    }
+    const audioEl = document.getElementById('personalVoiceAudioElement');
+    if (audioEl) {
+      audioEl.pause();
+      audioEl.currentTime = 0;
+    }
+    const timerBtn = document.getElementById('meditationTimerBtn');
+    if (timerBtn) timerBtn.textContent = '⏱️ بدء المؤقت';
+
+    const orbEl = document.getElementById('breathingOrbElement');
+    if (orbEl) orbEl.className = 'breathing-orb rest';
+
+    const modal = document.getElementById('meditationModal');
+    if (modal) modal.classList.remove('open');
+  },
+
+  switchMeditationMode(mode) {
+    this.meditationAudio.mode = mode;
+    this.stopMeditationVoiceGuide();
+    this.stopConfidenceAudio();
+
+    // تحديث أزرار التنقل
+    ['aim', 'confidence', 'premarket', 'reset', 'breathing', 'myvoice'].forEach((m) => {
+      const btn = document.getElementById('medBtn-' + m);
+      if (btn) btn.classList.toggle('active', m === mode);
+    });
+
+    // تعيين المدة الزمنية حسب الوضع
+    let duration = 5 * 60; // 5 دقائق
+    if (mode === 'confidence') duration = 4 * 60; // 4 دقائق
+    if (mode === 'premarket') duration = 4 * 60; // 4 دقائق
+    if (mode === 'reset' || mode === 'breathing' || mode === 'myvoice') duration = 3 * 60; // 3 دقائق
+
+    this.meditationDuration = duration;
+    this.meditationSecondsRemaining = duration;
+    this.meditationAudio.cycleSec = 0;
+    this.updateMeditationDigits();
+
+    // تحديث النص الإرشادي
+    this.renderMeditationScript(mode);
+
+    // إظهار أو إخفاء قسم التسجيل الصوتي الشخصي
+    const voiceMemoSection = document.getElementById('meditationVoiceMemoSection');
+    if (voiceMemoSection) {
+      voiceMemoSection.style.display = (mode === 'myvoice' || this.state?.personalVoiceAim) ? 'block' : 'none';
+    }
+
+    // إعادة ضبط شكل الدائرة
+    const orbEl = document.getElementById('breathingOrbElement');
+    if (orbEl) orbEl.className = 'breathing-orb rest';
+    const phasePill = document.getElementById('meditationPhasePill');
+    if (phasePill) phasePill.textContent = 'جاهز للبدء';
+  },
+
+  renderMeditationScript(mode) {
+    const box = document.getElementById('meditationScriptBox');
+    if (!box) return;
+
+    const aim = this.state?.definiteAim || {};
+    let contentHtml = '';
+
+    if (mode === 'aim') {
+      let customAimText = '';
+      if (aim.goal && aim.goal.trim()) {
+        customAimText = `<div style="margin: 12px 0; padding: 12px; background: rgba(212, 175, 55, 0.12); border-right: 3px solid var(--gold-primary); border-radius: 6px;">
+          <strong style="color: var(--gold-primary);">🎯 وثيقة هدفي الرئيسي المحدد:</strong><br/>
+          « ${this.escapeHtml(aim.goal)} »
+          ${aim.giveInReturn ? `<br/><span style="font-size: 0.85rem; color: #CBD5E1;">ما أتعهد بتقديمه: ${this.escapeHtml(aim.giveInReturn)}</span>` : ''}
+          ${aim.targetDate ? `<br/><span style="font-size: 0.85rem; color: var(--gold-light);">تاريخ الإنجاز المستهدف: ${this.escapeHtml(aim.targetDate)}</span>` : ''}
+        </div>`;
+      }
+      contentHtml = `
+        <h4 style="color: var(--gold-primary); margin-bottom: 8px;">👑 عهد الإيحاء الذاتي والثقة بالنفس (نابليون هيل)</h4>
+        <p>« أنا أمتلك القدرة الكاملة على تحقيق هدفي الرئيسي في الحياة. أطلب من نفسي عملاً مستمراً لا ينقطع لبلوغه، وأتعهد بأن أقدم كل طاقتي وتركيزي لهذا الغرض كل يوم. »</p>
+        <p>« أدرك تماماً أن الأفكار المهيمنة في عقلي ستترجم في النهاية إلى أفعال جسدية ونتائج مادية ملموسة. لذلك أركز أفكاري يومياً على الشخص الذي أرغب في أن أكونه. »</p>
+        ${customAimText}
+        <p>« أعلم أن أي رغبة أحتفظ بها في عقلي الباطن ستجد وسيلة لتحقيق ذاتها. أنا واثق تماماً من قدرتي، ولن أتراجع حتى أحقق مقصدي بإيمان لا يتزعزع. »</p>
+      `;
+    } else if (mode === 'confidence') {
+      let customConfSnippet = '';
+      if (this.state?.customConfidenceFormula && this.state.customConfidenceFormula.trim()) {
+        customConfSnippet = `
+          <div style="margin: 14px 0; padding: 12px; background: rgba(212, 175, 55, 0.12); border-right: 3px solid var(--gold-primary); border-radius: 6px;">
+            <strong style="color: var(--gold-primary);">✍️ صيغتي وعهدي الخاص للثقة:</strong><br/>
+            « ${this.escapeHtml(this.state.customConfidenceFormula)} »
+          </div>
+        `;
+      }
+      contentHtml = `
+        <h4 style="color: var(--gold-primary); margin-bottom: 8px;">🦁 صيغة الثقة بالنفس الخماسية وعهدك الخاص (نابليون هيل)</h4>
+        <p>« أولاً: أعلم أنني أمتلك القدرة الكاملة على تحقيق هدفي الرئيسي في الحياة؛ ولذا فإنني أطالب نفسي بعمل مستمر لا ينقطع لبلوغه. »</p>
+        <p>« ثانياً: أدرك أن الأفكار المهيمنة على عقلي ستترجم في النهاية إلى أفعال جسدية ونتائج مادية ملموسة؛ ولذلك أركز أفكاري يومياً على الشخص الذي أرغب أن أكونه. »</p>
+        <p>« ثالثاً: أعلم أنه من خلال مبدأ الإيحاء الذاتي، فإن أي رغبة أحتفظ بها بثبات في عقلي ستجد في النهاية تعبيراً عملياً لتحقيقها. »</p>
+        <p>« رابعاً: لقد كتبت بوضوح وصفاً لهدفي الرئيسي المحدد في الحياة، ولن أتوقف عن المحاولة حتى أكتسب الثقة بالنفس الكافية لتحقيقه. »</p>
+        <p>« خامساً: أدرك تماماً أنه لا يمكن لأي ثروة أو مكانة أن تدوم طويلاً ما لم تُبنَ على الحقيقة والعدل؛ ولذلك لن أشارك في أي معاملة لا تعود بالنفع على جميع الأطراف. »</p>
+        ${customConfSnippet}
+      `;
+    } else if (mode === 'premarket') {
+      contentHtml = `
+        <h4 style="color: #60A5FA; margin-bottom: 8px;">🛡️ تهيئة الجهاز العصبي قبل فتح المنصة (عقلية الاحتمالات النقية)</h4>
+        <p>« تنفس بهدوء وعمق... السوق بيئة احتمالات نقية. أي حركة سعرية يمكن أن تحدث في أي لحظة. »</p>
+        <p>« أنا لا أحتاج لمعرفة ما سيحدث تالياً لأصنع المال. ميزتي الإحصائية تعمل على سلسلة من الصفقات، وليس على صفقة واحدة. »</p>
+        <p>« كل لحظة في السوق فريدة ومستقلة تماماً عما قبلها. قبل أن أضغط زر الدخول، أنا متقبل للخطر المالي مسبقاً بنسبة 100%. »</p>
+        <p>« أنا لست في حرب مع حركة السعر، ولا أبحث عن إثبات صحة رأيي. أنا أتبع خطتي فقط بدقة عسكرية، وهدوء وسكينة تامة. »</p>
+      `;
+    } else if (mode === 'reset') {
+      contentHtml = `
+        <h4 style="color: #F87171; margin-bottom: 8px;">🛑 إيقاف النزيف العاطفي وفك الارتباط بعد الخسارة (Reset & Detach)</h4>
+        <p>« توقف تماماً الآن... حرر أصابعك من الفأرة... تنفس بعمق وتراجع خطوة إلى الوراء. »</p>
+        <p>« هذه الخسارة هي مجرد تكلفة تشغيلية عادية في عمل التداول، تماماً مثل دفع فواتير أي متجر تجاري ناجح. »</p>
+        <p>« هذه الخسارة لا تحدد قيمتك كمتداول ولا تمس ذكائك. السوق لم يستهدفك شخصياً، بل نفذ احتمالاته الطبيعية. »</p>
+        <p>« إياك والانتقام. إياك ومضاعفة حجم اللوت لتعويض المال سريعاً. رغبة الانتقام هي الفخ الأكبر الذي يدمر الحسابات. »</p>
+        <p>« أخرج زفيراً طويلاً، وافرغ كل غضب أو إحباط. تذكر دائماً: رأس مالك النفسي أثمن بكثير من أي صفقة مفردة. »</p>
+      `;
+    } else if (mode === 'breathing') {
+      contentHtml = `
+        <h4 style="color: #34D399; margin-bottom: 8px;">🫁 تمرين التنفس الصندوقي التوازني المهدئ (4-4-4-4 Box Breathing)</h4>
+        <p>« استعد الآن لمزامنة تنفسك مع الدائرة الذهبية النابضة أمامك. »</p>
+        <p>« شهيق عميق وهادئ من الأنف لأربع ثوانٍ... يملأ صدرك بالصفاء واليقين. »</p>
+        <p>« احبس النفس لأربع ثوانٍ... استشعر السكون الداخلي واستقرار نبضات قلبك. »</p>
+        <p>« أخرج زفيراً بطيئاً من الفم لأربع ثوانٍ... تفريغ كامل لكل توتر وقلق وضغط نفسي. »</p>
+        <p>« اثبت في سكون تام لأربع ثوانٍ... حياد ذهني مطلق وعقل صافٍ كمرآة الماء. »</p>
+      `;
+    } else if (mode === 'myvoice') {
+      contentHtml = `
+        <h4 style="color: var(--gold-primary); margin-bottom: 8px;">🎙️ تسجيل وسماع وثيقة هدفي بصوتي البشري الخاص</h4>
+        <p>« صوتك البشري الخاص هو أقوى محرك لبرمجة عقلك الباطن وإيقاظ الإيمان الذاتي. »</p>
+        <p>« عندما تقرأ وثيقة هدفك بصوتك، ثم تستمع إليها يومياً وأنت مغمض العينين، يتلاشى الشك فوراً ويتجذر اليقين في أعماقك. »</p>
+        <p>« اضغط على زر التسجيل أدناه، واقرأ هدفك بكل عاطفة وثقة ويقين تام. ثم احفظه ليكون مرجعك الصوتي الدائم في كل صباح ومساء. »</p>
+      `;
+    }
+
+    box.innerHTML = contentHtml;
   },
 
   toggleMeditationTimer() {
@@ -1221,13 +1583,17 @@ const App = {
     if (this.meditationInterval) {
       clearInterval(this.meditationInterval);
       this.meditationInterval = null;
-      btn.textContent = '▶️ استئناف مؤقت التأمل';
+      if (btn) btn.textContent = '▶️ استئناف المؤقت';
+      const orbEl = document.getElementById('breathingOrbElement');
+      if (orbEl) orbEl.className = 'breathing-orb rest';
     } else {
-      btn.textContent = '⏸️ إيقاف مؤقت';
+      if (btn) btn.textContent = '⏸️ إيقاف المؤقت';
       this.meditationInterval = setInterval(() => {
         if (this.meditationSecondsRemaining > 0) {
           this.meditationSecondsRemaining--;
+          this.meditationAudio.cycleSec = (this.meditationAudio.cycleSec + 1) % 16;
           this.updateMeditationDigits();
+          this.updateBreathingOrb();
         } else {
           clearInterval(this.meditationInterval);
           this.meditationInterval = null;
@@ -1238,18 +1604,623 @@ const App = {
     }
   },
 
+  updateBreathingOrb() {
+    const sec = this.meditationAudio.cycleSec;
+    let phaseClass = 'rest';
+    let phaseText = 'سكون وتأمل';
+    let remInPhase = 4;
+
+    if (sec < 4) {
+      phaseClass = 'inhale';
+      phaseText = 'شهيق عميق';
+      remInPhase = 4 - sec;
+    } else if (sec < 8) {
+      phaseClass = 'hold';
+      phaseText = 'حبس النفس';
+      remInPhase = 8 - sec;
+    } else if (sec < 12) {
+      phaseClass = 'exhale';
+      phaseText = 'زفير بطيء';
+      remInPhase = 12 - sec;
+    } else {
+      phaseClass = 'rest';
+      phaseText = 'سكون تام';
+      remInPhase = 16 - sec;
+    }
+
+    const orb = document.getElementById('breathingOrbElement');
+    if (orb) orb.className = 'breathing-orb ' + phaseClass;
+
+    const pill = document.getElementById('meditationPhasePill');
+    if (pill) pill.textContent = `${phaseText} (${remInPhase}ث)`;
+  },
+
   updateMeditationDigits() {
     const m = String(Math.floor(this.meditationSecondsRemaining / 60)).padStart(2, '0');
     const s = String(this.meditationSecondsRemaining % 60).padStart(2, '0');
-    document.getElementById('meditationTimerDigits').textContent = `${m}:${s}`;
+    const digits = document.getElementById('meditationTimerDigits');
+    if (digits) digits.textContent = `${m}:${s}`;
   },
 
   completeMeditationSession() {
-    this.state.definiteAim.readCount = (this.state.definiteAim.readCount || 0) + 1;
-    this.addXP(25, 'إتمام جلسة الإيحاء الذاتي والتأمل في الهدف');
+    if (this.state && this.state.definiteAim) {
+      this.state.definiteAim.readCount = (this.state.definiteAim.readCount || 0) + 1;
+    }
+    this.addXP(30, 'إتمام جلسة صوتية وتأمل ذهني موجه (+30 XP)');
     this.renderAimSection();
     this.renderDashboardAim();
     this.closeFocusMeditation();
+    this.showToast('🌟 أحسنت! تم إتمام الجلسة الذهنية بنجاح وتعزيز طاقتك الداخلية (+30 XP)', 'success');
+  },
+
+  // ===== نظام إدارة واكتشاف وتخصيص الأصوات المتاحة (Voice Selection & Tuning) =====
+  initSpeechVoices() {
+    if (!('speechSynthesis' in window)) return;
+
+    const populate = () => {
+      this.populateVoiceSelect();
+    };
+
+    populate();
+    if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
+      window.speechSynthesis.onvoiceschanged = populate;
+    }
+  },
+
+  getAvailableVoices() {
+    if (!('speechSynthesis' in window)) return [];
+    const all = window.speechSynthesis.getVoices() || [];
+
+    // فلترة الأصوات العربية أولاً
+    const arVoices = all.filter((v) => {
+      const lang = (v.lang || '').toLowerCase();
+      const name = (v.name || '').toLowerCase();
+      return lang.startsWith('ar') || lang.includes('-ar') || name.includes('arabic') || name.includes('ar-');
+    });
+
+    // ترتيب الأصوات بحيث تكون الأصوات الطبيعية الواقعية (Natural / Online / Neural) في الصدارة المطلقة
+    const sortScore = (v) => {
+      const n = (v.name || '').toLowerCase();
+      if (n.includes('natural') || n.includes('online') || n.includes('neural')) {
+        if (n.includes('salma')) return 100; // سلمى رقم 1 (هادئة وناعمة وواقعية جداً)
+        if (n.includes('hamed')) return 95;  // حامد رقم 2 (وقور وفخم)
+        if (n.includes('shakir')) return 90; // شاكر رقم 3 (دافئ)
+        if (n.includes('fatima')) return 85; // فاطمة رقم 4
+        return 80;
+      }
+      if (n.includes('maged') || n.includes('siri') || n.includes('tarik') || n.includes('laila')) return 70; // آبل ماجد وليلى
+      if (n.includes('google')) return 60; // أصوات جوجل الذكية
+      if (n.includes('naayf') || n.includes('hoda')) return 30; // نايف وهدى (ويندوز كلاسيكي روبوتي)
+      return 40;
+    };
+
+    arVoices.sort((a, b) => sortScore(b) - sortScore(a));
+
+    if (arVoices.length > 0) return arVoices;
+    // إذا لم يتوفر أي صوت عربي، إرجاع كافة أصوات النظام
+    return all;
+  },
+
+  populateVoiceSelect() {
+    const select = document.getElementById('meditationVoiceSelect');
+    if (!select) return;
+
+    const voices = this.getAvailableVoices();
+    if (!voices.length) {
+      select.innerHTML = '<option value="">جاري تحميل الأصوات من النظام...</option>';
+      return;
+    }
+
+    const currentVoiceURI = this.state?.meditationVoiceSettings?.voiceURI || '';
+    let selectedFound = false;
+
+    select.innerHTML = voices.map((v) => {
+      const name = v.name || 'Voice';
+      let displayName = name;
+      const lower = name.toLowerCase();
+
+      if (lower.includes('salma')) {
+        displayName = '🌟 سلمى (Salma Natural) - أنثوي هادئ وواقعي جداً';
+      } else if (lower.includes('hamed')) {
+        displayName = '🌟 حامد (Hamed Natural) - رجالي وقور وفخم ومطمئن';
+      } else if (lower.includes('shakir')) {
+        displayName = '🌟 شاكر (Shakir Natural) - رجالي دافئ ومريح';
+      } else if (lower.includes('fatima')) {
+        displayName = '🌟 فاطمة (Fatima Natural) - أنثوي رصين';
+      } else if (lower.includes('zariyah')) {
+        displayName = '🌟 زارية (Zariyah Natural) - أنثوي نقي';
+      } else if (lower.includes('maged')) {
+        displayName = '🍎 ماجد (Apple Maged) - صوت آبل الطبيعي';
+      } else if (lower.includes('tarik')) {
+        displayName = '🍎 طارق (Apple Tarik) - صوت آبل الطبيعي';
+      } else if (lower.includes('laila')) {
+        displayName = '🍎 ليلى (Apple Laila) - صوت آبل الطبيعي';
+      } else if (lower.includes('google')) {
+        displayName = '✨ صوت جوجل الذكي (Google Arabic)';
+      } else if (lower.includes('natural') || lower.includes('online')) {
+        displayName = `🌟 ${name} (طبيعي فائق الواقعية)`;
+      } else if (lower.includes('naayf')) {
+        displayName = '🎙️ نايف (Microsoft Naayf) - صوت ويندوز كلاسيكي';
+      } else if (lower.includes('hoda')) {
+        displayName = '🎙️ هدى (Microsoft Hoda) - صوت ويندوز كلاسيكي';
+      } else {
+        displayName = `🎙️ ${name} (${v.lang || ''})`;
+      }
+
+      const isSelected = (currentVoiceURI && (v.voiceURI === currentVoiceURI || v.name === currentVoiceURI));
+      if (isSelected) selectedFound = true;
+
+      return `<option value="${this.escapeHtml(v.voiceURI || v.name)}" ${isSelected ? 'selected' : ''}>${this.escapeHtml(displayName)}</option>`;
+    }).join('');
+
+    // إذا لم يكن هناك صوت محدد مسبقاً، اختر الصوت الأول تلقائياً (الذي رتبناه ليكون الأفضل)
+    if (!selectedFound && voices[0]) {
+      const best = voices[0];
+      if (!this.state.meditationVoiceSettings) {
+        this.state.meditationVoiceSettings = { voiceURI: '', rate: 0.82, pitch: 0.95 };
+      }
+      this.state.meditationVoiceSettings.voiceURI = best.voiceURI || best.name;
+      select.value = this.state.meditationVoiceSettings.voiceURI;
+    }
+
+    this.updateVoiceTypeBadge();
+    this.syncVoiceSettingsUI();
+  },
+
+  updateVoiceTypeBadge() {
+    const badge = document.getElementById('voiceTypeBadge');
+    if (!badge) return;
+
+    const voices = this.getAvailableVoices();
+    const uri = this.state?.meditationVoiceSettings?.voiceURI || '';
+    const v = voices.find((x) => (x.voiceURI || x.name) === uri) || voices[0];
+
+    if (v) {
+      const n = (v.name || '').toLowerCase();
+      if (n.includes('natural') || n.includes('online') || n.includes('neural') || n.includes('maged') || n.includes('google')) {
+        badge.textContent = '🌟 صوت طبيعي فائق الواقعية';
+        badge.style.background = 'rgba(16, 185, 129, 0.2)';
+        badge.style.color = '#34D399';
+        badge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+      } else {
+        badge.textContent = '🎙️ صوت قياسي';
+        badge.style.background = 'rgba(148, 163, 184, 0.15)';
+        badge.style.color = 'var(--text-secondary)';
+        badge.style.borderColor = 'rgba(148, 163, 184, 0.3)';
+      }
+    }
+  },
+
+  syncVoiceSettingsUI() {
+    const st = this.state?.meditationVoiceSettings || { rate: 0.82, pitch: 0.95 };
+
+    const rateInput = document.getElementById('meditationVoiceRate');
+    const rateLabel = document.getElementById('meditationVoiceRateLabel');
+    if (rateInput && rateLabel) {
+      rateInput.value = st.rate || 0.82;
+      rateLabel.textContent = `${Number(st.rate || 0.82).toFixed(2)}x`;
+    }
+
+    const pitchInput = document.getElementById('meditationVoicePitch');
+    const pitchLabel = document.getElementById('meditationVoicePitchLabel');
+    if (pitchInput && pitchLabel) {
+      pitchInput.value = st.pitch || 0.95;
+      pitchLabel.textContent = Number(st.pitch || 0.95).toFixed(2);
+    }
+  },
+
+  onMeditationVoiceSelected(voiceURI) {
+    if (!this.state.meditationVoiceSettings) {
+      this.state.meditationVoiceSettings = { voiceURI: '', rate: 0.82, pitch: 0.95 };
+    }
+    this.state.meditationVoiceSettings.voiceURI = voiceURI;
+    this.saveState();
+    this.updateVoiceTypeBadge();
+
+    // إذا كانت الجلسة الصوتية قيد التشغيل، أعد قراءة الجملة الحالية بالصوت الجديد
+    if (this.meditationAudio.isPlayingVoice) {
+      window.speechSynthesis.cancel();
+      this.speakNextMeditationSentence();
+    }
+    this.showToast('✅ تم اختيار وحفظ قارئ التأمل المفضل بنجاح', 'success');
+  },
+
+  onMeditationRateChange(rateVal) {
+    if (!this.state.meditationVoiceSettings) {
+      this.state.meditationVoiceSettings = { voiceURI: '', rate: 0.82, pitch: 0.95 };
+    }
+    this.state.meditationVoiceSettings.rate = parseFloat(rateVal);
+    const label = document.getElementById('meditationVoiceRateLabel');
+    if (label) label.textContent = `${parseFloat(rateVal).toFixed(2)}x`;
+    this.saveState();
+  },
+
+  onMeditationPitchChange(pitchVal) {
+    if (!this.state.meditationVoiceSettings) {
+      this.state.meditationVoiceSettings = { voiceURI: '', rate: 0.82, pitch: 0.95 };
+    }
+    this.state.meditationVoiceSettings.pitch = parseFloat(pitchVal);
+    const label = document.getElementById('meditationVoicePitchLabel');
+    if (label) label.textContent = parseFloat(pitchVal).toFixed(2);
+    this.saveState();
+  },
+
+  previewSelectedVoice() {
+    if (!('speechSynthesis' in window)) {
+      this.showToast('متصفحك لا يدعم SpeechSynthesis', 'warning');
+      return;
+    }
+    window.speechSynthesis.cancel();
+    if (this.meditationAudio.synthTimeout) {
+      clearTimeout(this.meditationAudio.synthTimeout);
+      this.meditationAudio.synthTimeout = null;
+    }
+
+    const previewPhrases = [
+      'أهلاً بك... أنا رفيقك الصوتي في رحلة التأمل وبرمجة العقل الباطن وقوانين النجاح.',
+      'تنفس بعمق وهدوء... ركّز على هدفك الأسمى واشعر باليقين التام.',
+      'أنت تمتلك القدرة الكاملة على توجيه أفكارك وصناعة واقعك المالي والشخصي.'
+    ];
+    const phrase = previewPhrases[Math.floor(Math.random() * previewPhrases.length)];
+
+    const utter = new SpeechSynthesisUtterance(phrase);
+    utter.lang = 'ar-SA';
+    const st = this.state?.meditationVoiceSettings || {};
+    utter.rate = st.rate || 0.82;
+    utter.pitch = st.pitch || 0.95;
+
+    const voices = this.getAvailableVoices();
+    const uri = st.voiceURI;
+    const chosen = voices.find((v) => (v.voiceURI || v.name) === uri) || voices[0];
+    if (chosen) utter.voice = chosen;
+
+    window.speechSynthesis.speak(utter);
+    const shortName = chosen ? chosen.name.replace(/Microsoft |Online |\(Natural\) |\(Arabic.*?\)/gi, '').trim() : 'الصوت المختار';
+    this.showToast(`🎧 تجربة صوت: ${shortName}`, 'info');
+  },
+
+  // ===== الإرشاد الصوتي عبر Web Speech API =====
+  toggleMeditationVoiceGuide() {
+    if (this.meditationAudio.isPlayingVoice) {
+      this.stopMeditationVoiceGuide();
+    } else {
+      this.startMeditationVoiceGuide();
+    }
+  },
+
+  startMeditationVoiceGuide() {
+    if (!('speechSynthesis' in window)) {
+      this.showToast('متصفحك لا يدعم الإرشاد الصوتي (Web Speech API)', 'warning');
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    if (this.meditationAudio.synthTimeout) {
+      clearTimeout(this.meditationAudio.synthTimeout);
+      this.meditationAudio.synthTimeout = null;
+    }
+
+    const scriptBox = document.getElementById('meditationScriptBox');
+    const rawText = scriptBox ? scriptBox.innerText : '';
+    if (!rawText.trim()) return;
+
+    // استخراج الجمل المهدئة بدقة
+    const sentences = rawText
+      .split(/[\n.،؛]+/)
+      .map((s) => s.replace(/«|»|🎯|👑|🛡️|🛑|🫁|🎙️/g, '').trim())
+      .filter((s) => s.length > 3);
+
+    if (!sentences.length) return;
+
+    this.meditationAudio.isPlayingVoice = true;
+    this.meditationAudio.currentUtteranceIdx = 0;
+    this.meditationAudio.synthSentences = sentences;
+
+    const btn = document.getElementById('meditationVoiceGuideBtn');
+    if (btn) {
+      btn.innerHTML = '⏸️ إيقاف الإرشاد الصوتي';
+      btn.classList.add('active');
+    }
+
+    // إذا لم يكن المؤقت يعمل، ابدأه تلقائياً
+    if (!this.meditationInterval) {
+      this.toggleMeditationTimer();
+    }
+
+    this.speakNextMeditationSentence();
+    this.showToast('🔊 تم تفعيل الإرشاد الصوتي الهادئ', 'success');
+  },
+
+  speakNextMeditationSentence() {
+    if (!this.meditationAudio.isPlayingVoice) return;
+    const sentences = this.meditationAudio.synthSentences || [];
+    if (this.meditationAudio.currentUtteranceIdx >= sentences.length) {
+      this.stopMeditationVoiceGuide();
+      return;
+    }
+
+    const textToSpeak = sentences[this.meditationAudio.currentUtteranceIdx];
+    const utter = new SpeechSynthesisUtterance(textToSpeak);
+    utter.lang = 'ar-SA';
+
+    const st = this.state?.meditationVoiceSettings || {};
+    utter.rate = st.rate || 0.82; // وتيرة هادئة متأملة ومريحة
+    utter.pitch = st.pitch || 0.95;
+
+    // استخدام الصوت المفضل الذي اختاره المستخدم
+    try {
+      const voices = this.getAvailableVoices();
+      const uri = st.voiceURI;
+      let chosen = null;
+      if (uri) {
+        chosen = voices.find((v) => (v.voiceURI || v.name) === uri);
+      }
+      if (!chosen && voices.length > 0) {
+        chosen = voices[0]; // الصوت الأول (الذي تم ترتيبه ليكون Natural/Online أولاً)
+      }
+      if (chosen) utter.voice = chosen;
+    } catch (e) {}
+
+    utter.onend = () => {
+      this.meditationAudio.currentUtteranceIdx++;
+      if (this.meditationAudio.isPlayingVoice) {
+        // وقفة تنفس واعية 1.2 ثانية بين كل جملة وأخرى لتعزيز الهدوء
+        this.meditationAudio.synthTimeout = setTimeout(() => {
+          this.speakNextMeditationSentence();
+        }, 1200);
+      }
+    };
+
+    utter.onerror = () => {
+      this.meditationAudio.currentUtteranceIdx++;
+      if (this.meditationAudio.isPlayingVoice) {
+        this.meditationAudio.synthTimeout = setTimeout(() => {
+          this.speakNextMeditationSentence();
+        }, 1000);
+      }
+    };
+
+    window.speechSynthesis.speak(utter);
+  },
+
+  stopMeditationVoiceGuide() {
+    this.meditationAudio.isPlayingVoice = false;
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    if (this.meditationAudio.synthTimeout) {
+      clearTimeout(this.meditationAudio.synthTimeout);
+      this.meditationAudio.synthTimeout = null;
+    }
+    const btn = document.getElementById('meditationVoiceGuideBtn');
+    if (btn) {
+      btn.innerHTML = '🔊 تشغيل الإرشاد الصوتي (Voice Guide)';
+      btn.classList.remove('active');
+    }
+  },
+
+  // ===== ذبذبات ألفا 432Hz و 10Hz عبر Web Audio API =====
+  toggleBinauralBeats() {
+    if (this.meditationAudio.binauralActive) {
+      this.stopBinauralBeats();
+    } else {
+      this.startBinauralBeats();
+    }
+  },
+
+  startBinauralBeats() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) {
+        this.showToast('متصفحك لا يدعم Web Audio API', 'warning');
+        return;
+      }
+      if (!this.meditationAudio.audioCtx) {
+        this.meditationAudio.audioCtx = new AudioCtx();
+      }
+      const ctx = this.meditationAudio.audioCtx;
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+
+      const carrierFreq = 432; // تردد السكينة والتوازن (432Hz)
+      const beatFreq = 10;     // موجات ألفا للاسترخاء الذهني والتركيز التام (10Hz)
+
+      const oscL = ctx.createOscillator();
+      oscL.type = 'sine';
+      oscL.frequency.value = carrierFreq;
+
+      const oscR = ctx.createOscillator();
+      oscR.type = 'sine';
+      oscR.frequency.value = carrierFreq + beatFreq;
+
+      const masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(0.001, ctx.currentTime);
+      masterGain.gain.exponentialRampToValueAtTime(0.065, ctx.currentTime + 1.6); // مستوى خافت ومريح
+
+      if (ctx.createStereoPanner) {
+        const panL = ctx.createStereoPanner();
+        panL.pan.value = -0.85;
+        const panR = ctx.createStereoPanner();
+        panR.pan.value = 0.85;
+
+        oscL.connect(panL);
+        panL.connect(masterGain);
+
+        oscR.connect(panR);
+        panR.connect(masterGain);
+      } else {
+        oscL.connect(masterGain);
+        oscR.connect(masterGain);
+      }
+
+      masterGain.connect(ctx.destination);
+
+      oscL.start();
+      oscR.start();
+
+      this.meditationAudio.oscLeft = oscL;
+      this.meditationAudio.oscRight = oscR;
+      this.meditationAudio.gainNode = masterGain;
+      this.meditationAudio.binauralActive = true;
+
+      const btn = document.getElementById('meditationBinauralBtn');
+      if (btn) {
+        btn.innerHTML = '⏸️ إيقاف ذبذبات ألفا 432Hz';
+        btn.classList.add('active');
+      }
+      this.showToast('🎵 تم تفعيل ذبذبات 432Hz ألفا (استخدم سماعات الأذن لتجربة استرخاء كاملة)', 'success');
+    } catch (err) {
+      console.error('Binaural beat error:', err);
+      this.showToast('تعذر تشغيل ذبذبات ألفا: ' + err.message, 'warning');
+    }
+  },
+
+  stopBinauralBeats() {
+    try {
+      if (this.meditationAudio.gainNode && this.meditationAudio.audioCtx) {
+        const ctx = this.meditationAudio.audioCtx;
+        this.meditationAudio.gainNode.gain.setValueAtTime(this.meditationAudio.gainNode.gain.value, ctx.currentTime);
+        this.meditationAudio.gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+        setTimeout(() => {
+          try {
+            if (this.meditationAudio.oscLeft) this.meditationAudio.oscLeft.stop();
+            if (this.meditationAudio.oscRight) this.meditationAudio.oscRight.stop();
+          } catch (e) {}
+        }, 600);
+      }
+    } catch (e) {}
+    this.meditationAudio.binauralActive = false;
+    this.meditationAudio.oscLeft = null;
+    this.meditationAudio.oscRight = null;
+    this.meditationAudio.gainNode = null;
+
+    const btn = document.getElementById('meditationBinauralBtn');
+    if (btn) {
+      btn.innerHTML = '🎵 ذبذبات ألفا 432Hz (هدوء ذهني)';
+      btn.classList.remove('active');
+    }
+  },
+
+  // ===== تسجيل وسماع الهدف بالصوت الشخصي (MediaRecorder API) =====
+  async togglePersonalVoiceRecording() {
+    if (this.meditationAudio.isRecording) {
+      this.stopPersonalVoiceRecording();
+    } else {
+      await this.startPersonalVoiceRecording();
+    }
+  },
+
+  async startPersonalVoiceRecording() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      this.showToast('التسجيل الصوتي غير مدعوم في متصفحك الحالي', 'warning');
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      let options = { mimeType: 'audio/webm' };
+      if (typeof MediaRecorder !== 'undefined' && !MediaRecorder.isTypeSupported('audio/webm')) {
+        if (MediaRecorder.isTypeSupported('audio/ogg; codecs=opus')) {
+          options = { mimeType: 'audio/ogg; codecs=opus' };
+        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          options = { mimeType: 'audio/mp4' };
+        } else {
+          options = {};
+        }
+      }
+      const recorder = new MediaRecorder(stream, options);
+      this.meditationAudio.recordedChunks = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          this.meditationAudio.recordedChunks.push(e.data);
+        }
+      };
+      recorder.onstop = () => {
+        const blob = new Blob(this.meditationAudio.recordedChunks, { type: recorder.mimeType || 'audio/webm' });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          this.state.personalVoiceAim = reader.result;
+          this.saveState();
+          this.updateVoiceMemoUI();
+          this.showToast('✨ تم حفظ تسجيلك الصوتي بنجاح في جهازك!', 'success');
+        };
+        reader.readAsDataURL(blob);
+        stream.getTracks().forEach((t) => t.stop());
+      };
+
+      recorder.start(1000);
+      this.meditationAudio.mediaRecorder = recorder;
+      this.meditationAudio.isRecording = true;
+
+      const btn = document.getElementById('voiceMemoRecordBtn');
+      if (btn) {
+        btn.innerHTML = '⏹️ إيقاف وحفظ التسجيل';
+        btn.classList.add('btn-gold');
+        btn.classList.remove('btn-outline-gold');
+      }
+      const status = document.getElementById('voiceMemoStatusLabel');
+      if (status) status.innerHTML = '<span class="voice-record-badge">🔴 جاري تسجيل صوتك الآن... اقرأ هدفك بكل عاطفة وإيمان</span>';
+    } catch (err) {
+      console.error('Audio recording error:', err);
+      this.showToast('تعذر الوصول للميكروفون: ' + err.message, 'danger');
+    }
+  },
+
+  stopPersonalVoiceRecording() {
+    if (this.meditationAudio.mediaRecorder && this.meditationAudio.isRecording) {
+      this.meditationAudio.mediaRecorder.stop();
+      this.meditationAudio.isRecording = false;
+      const btn = document.getElementById('voiceMemoRecordBtn');
+      if (btn) {
+        btn.innerHTML = '🎙️ تسجيل صوتي جديد';
+        btn.classList.remove('btn-gold');
+        btn.classList.add('btn-outline-gold');
+      }
+    }
+  },
+
+  playPersonalVoiceMemo() {
+    if (!this.state?.personalVoiceAim) {
+      this.showToast('لم تسجل هدفك بصوتك بعد', 'info');
+      return;
+    }
+    const audioEl = document.getElementById('personalVoiceAudioElement');
+    if (audioEl) {
+      audioEl.src = this.state.personalVoiceAim;
+      audioEl.play().then(() => {
+        this.showToast('▶️ جاري تشغيل تسجيلك الصوتي بصوتك الخاص...', 'success');
+      }).catch((err) => {
+        this.showToast('خطأ في تشغيل الصوت: ' + err.message, 'warning');
+      });
+    }
+  },
+
+  deletePersonalVoiceMemo() {
+    if (confirm('هل أنت متأكد من حذف تسجيلك الصوتي؟')) {
+      this.state.personalVoiceAim = '';
+      this.saveState();
+      this.updateVoiceMemoUI();
+      this.showToast('تم حذف التسجيل الصوتي', 'info');
+    }
+  },
+
+  updateVoiceMemoUI() {
+    const playBtn = document.getElementById('voiceMemoPlayBtn');
+    const deleteBtn = document.getElementById('voiceMemoDeleteBtn');
+    const recordBtn = document.getElementById('voiceMemoRecordBtn');
+    const statusLabel = document.getElementById('voiceMemoStatusLabel');
+
+    if (this.state && this.state.personalVoiceAim) {
+      if (playBtn) playBtn.style.display = 'inline-flex';
+      if (deleteBtn) deleteBtn.style.display = 'inline-flex';
+      if (recordBtn) recordBtn.innerHTML = '🎙️ إعادة تسجيل بصوتي';
+      if (statusLabel) statusLabel.innerHTML = '✅ يوجد تسجيل صوتي محفوظ لوثيقة هدفك. يمكنك الاستماع إليه الآن.';
+    } else {
+      if (playBtn) playBtn.style.display = 'none';
+      if (deleteBtn) deleteBtn.style.display = 'none';
+      if (recordBtn) recordBtn.innerHTML = '🎙️ بدء تسجيل صوتي';
+      if (statusLabel) statusLabel.innerHTML = 'سجّل وثيقة هدفك بصوتك الخاص واستمع لها يومياً لتثبيت الإيمان الباطني';
+    }
   },
 
   // ==================== 4. التقييم الذاتي والتشخيص للقوانين الـ 16 ====================
@@ -3421,6 +4392,9 @@ ${recentHistory}
 
     // دمج الهدف الرئيسي والبليه بوك
     merged.definiteAim = { ...(def.definiteAim || {}), ...(l.definiteAim || {}), ...(r.definiteAim || {}) };
+    merged.personalVoiceAim = r.personalVoiceAim || l.personalVoiceAim || '';
+    merged.meditationVoiceSettings = { ...(def.meditationVoiceSettings || {}), ...(l.meditationVoiceSettings || {}), ...(r.meditationVoiceSettings || {}) };
+    merged.customConfidenceFormula = r.customConfidenceFormula || l.customConfidenceFormula || '';
     merged.strategyPlaybook = { ...(def.strategyPlaybook || {}), ...(l.strategyPlaybook || {}), ...(r.strategyPlaybook || {}) };
     merged.traderPsychProfile = { ...(def.traderPsychProfile || {}), ...(l.traderPsychProfile || {}), ...(r.traderPsychProfile || {}) };
 
