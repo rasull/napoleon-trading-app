@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>منظومة النجاح والتداول الاحترافي — نابليون هيل وأساطير التداول</title>
   <link rel="manifest" href="./manifest.json" />
-  <link rel="stylesheet" href="./css/styles.css?v=25" />
+  <link rel="stylesheet" href="./css/styles.css?v=26" />
 </head>
 <body>
 
@@ -1486,19 +1486,22 @@
       <!-- أزرار اختيار وضع الجلسة الذهنية -->
       <div class="meditation-modes-nav" id="meditationModesNav" style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px;">
         <button class="meditation-mode-btn active" id="medBtn-aim" onclick="App.switchMeditationMode('aim')">
-          👑 هدف الحياة وقوانين هيل (5د)
+          👑 هدف الحياة وقوانين هيل
         </button>
         <button class="meditation-mode-btn" id="medBtn-confidence" onclick="App.switchMeditationMode('confidence')">
-          🦁 صيغة الثقة بالنفس (4د)
+          🦁 صيغة الثقة بالنفس
+        </button>
+        <button class="meditation-mode-btn" id="medBtn-forgiveness" onclick="App.switchMeditationMode('forgiveness')">
+          🕊️ التسامح وتحرير الماضي
         </button>
         <button class="meditation-mode-btn" id="medBtn-premarket" onclick="App.switchMeditationMode('premarket')">
-          🛡️ تهيئة قبل التداول (4د)
+          🛡️ تهيئة قبل التداول
         </button>
         <button class="meditation-mode-btn" id="medBtn-reset" onclick="App.switchMeditationMode('reset')">
-          🛑 إيقاف النزيف بعد الخسارة (3د)
+          🛑 إيقاف النزيف بعد الخسارة
         </button>
         <button class="meditation-mode-btn" id="medBtn-breathing" onclick="App.switchMeditationMode('breathing')">
-          🫁 تنفس صندوقي 4-4-4-4 (3د)
+          🫁 تنفس صندوقي 4-4-4-4
         </button>
         <button class="meditation-mode-btn" id="medBtn-myvoice" onclick="App.switchMeditationMode('myvoice')">
           🎙️ تسجيلي بصوتي الخاص
@@ -1514,8 +1517,36 @@
         </div>
       </div>
 
+      <!-- شريط التحكم بتوقيت الجلسة والمزامنة الذكية مع القراءة -->
+      <div style="display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+        <div class="meditation-duration-bar" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-size: 0.8rem; color: var(--gold-light); font-weight: 700;">⏱️ توقيت الجلسة:</span>
+          <div class="duration-pills-group" style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button class="duration-pill-btn" id="durBtn-1" onclick="App.setMeditationDuration(1)">1 دقيقة</button>
+            <button class="duration-pill-btn" id="durBtn-2" onclick="App.setMeditationDuration(2)">2 دقيقة</button>
+            <button class="duration-pill-btn" id="durBtn-3" onclick="App.setMeditationDuration(3)">3 دقائق</button>
+            <button class="duration-pill-btn" id="durBtn-5" onclick="App.setMeditationDuration(5)">5 دقائق</button>
+            <button class="duration-pill-btn" id="durBtn-10" onclick="App.setMeditationDuration(10)">10 دقائق</button>
+            <button class="duration-pill-btn" id="durBtn-sync" onclick="App.setMeditationDuration('sync')" title="ينتهي المؤقت تلقائياً فور اكتمال القراءة الصوتية">🎯 مزامنة مع القراءة</button>
+          </div>
+        </div>
+        <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-secondary); cursor: pointer; background: rgba(255,255,255,0.04); padding: 6px 12px; border-radius: 99px; border: 1px solid rgba(212,175,55,0.2);">
+          <input type="checkbox" id="meditationLoopCheckbox" onchange="App.onMeditationLoopToggle(this.checked)" style="accent-color: var(--gold-primary); cursor: pointer;" />
+          <span>🔁 تكرار القراءة (Loop)</span>
+        </label>
+      </div>
+
       <!-- صندوق النص الإرشادي المقروء والمسموع -->
       <div class="meditation-script-box" id="meditationScriptBox"></div>
+
+      <!-- محرر توكيدات التسامح الشخصية الإضافية (يظهر في وضع التسامح) -->
+      <div id="forgivenessCustomEditorSection" style="display: none; margin-bottom: 16px; padding: 12px 16px; background: rgba(16, 185, 129, 0.06); border: 1px dashed rgba(16, 185, 129, 0.35); border-radius: 12px; text-align: right;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 0.82rem; font-weight: 700; color: #34D399;">✍️ إضافة أو تعديل توكيد تسامح شخصي خاص بك (يُحفظ ويُقرأ صوتياً):</span>
+          <button class="btn btn-outline-gold btn-sm" onclick="App.saveCustomForgivenessText()">💾 حفظ التوكيد</button>
+        </div>
+        <textarea id="customForgivenessInput" class="form-control" rows="2" placeholder="اكتب هنا أي عبارة تسامح أو تفريغ شخصية إضافية ترغب في ترسيخها..." style="font-size: 0.88rem; line-height: 1.7; resize: vertical;"></textarea>
+      </div>
 
       <!-- شريط تخصيص واختيار الصوت والنبرة والسرعة -->
       <div class="meditation-voice-bar" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
@@ -1774,8 +1805,8 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- ملفات الجافاسكريبت -->
-  <script src="./js/lawsData.js?v=25"></script>
-  <script src="./js/mytmCourseData.js?v=25"></script>
-  <script src="./js/app.js?v=25"></script>
+  <script src="./js/lawsData.js?v=26"></script>
+  <script src="./js/mytmCourseData.js?v=26"></script>
+  <script src="./js/app.js?v=26"></script>
 </body>
 </html>
