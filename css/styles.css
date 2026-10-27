@@ -1512,6 +1512,39 @@ input[type="range"].gold-slider {
   transform: translateX(-6px);
 }
 
+/* Duration Selector Pills */
+.meditation-duration-bar {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 99px;
+  padding: 6px 14px;
+}
+
+.duration-pill-btn {
+  background: rgba(13, 19, 34, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  color: var(--text-secondary);
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.duration-pill-btn:hover {
+  border-color: var(--gold-primary);
+  color: var(--gold-light);
+  background: rgba(212, 175, 55, 0.12);
+}
+
+.duration-pill-btn.active {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(212, 175, 55, 0.1) 100%);
+  border-color: var(--gold-primary);
+  color: #FFFFFF;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
+}
+
 /* Responsive Breakpoints */
 @media (max-width: 1024px) {
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
