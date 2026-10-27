@@ -109,6 +109,17 @@ const App = {
       personalVoiceAim: '',
       meditationVoiceSettings: { voiceURI: '', rate: 0.82, pitch: 0.95 },
       customConfidenceFormula: '',
+      customForgivenessText: '',
+      meditationDurations: {
+        aim: 300,
+        confidence: 180,
+        forgiveness: 'sync',
+        premarket: 180,
+        reset: 120,
+        breathing: 180,
+        myvoice: 180
+      },
+      meditationLoopAudio: false,
       drafts: { journal: {}, failure: {}, neural: {} },
       primedCheckedToday: {}, // { 'ptp_1': '2026-10-23' }
       tenKCompleted: {}, // { 'tk_1': true }
@@ -299,6 +310,14 @@ const App = {
           renderedCustomBox.style.display = 'none';
         }
       }
+    });
+
+    // حفظ تلقائي لتوكيد التسامح الشخصي
+    bindAutoSave(['customForgivenessInput'], () => {
+      const val = document.getElementById('customForgivenessInput')?.value.trim() || '';
+      this.state.customForgivenessText = val;
+      this.saveState();
+      this.renderMeditationScript('forgiveness');
     });
 
     // حفظ تلقائي للمسودات غير المكتملة في المختبر العملي وسجل الفشل والتدوين العصبي
@@ -1465,24 +1484,23 @@ const App = {
     this.stopConfidenceAudio();
 
     // تحديث أزرار التنقل
-    ['aim', 'confidence', 'premarket', 'reset', 'breathing', 'myvoice'].forEach((m) => {
+    ['aim', 'confidence', 'forgiveness', 'premarket', 'reset', 'breathing', 'myvoice'].forEach((m) => {
       const btn = document.getElementById('medBtn-' + m);
       if (btn) btn.classList.toggle('active', m === mode);
     });
 
-    // تعيين المدة الزمنية حسب الوضع
-    let duration = 5 * 60; // 5 دقائق
-    if (mode === 'confidence') duration = 4 * 60; // 4 دقائق
-    if (mode === 'premarket') duration = 4 * 60; // 4 دقائق
-    if (mode === 'reset' || mode === 'breathing' || mode === 'myvoice') duration = 3 * 60; // 3 دقائق
-
-    this.meditationDuration = duration;
-    this.meditationSecondsRemaining = duration;
-    this.meditationAudio.cycleSec = 0;
-    this.updateMeditationDigits();
-
-    // تحديث النص الإرشادي
+    // تحديث النص الإرشادي أولاً حتى يتمكن وضع المزامنة من حساب طول الكلمات بدقة
     this.renderMeditationScript(mode);
+
+    // إظهار أو إخفاء قسم محرر التسامح الشخصي
+    const forgEditor = document.getElementById('forgivenessCustomEditorSection');
+    if (forgEditor) {
+      forgEditor.style.display = (mode === 'forgiveness') ? 'block' : 'none';
+      const forgInput = document.getElementById('customForgivenessInput');
+      if (forgInput && mode === 'forgiveness') {
+        forgInput.value = this.state?.customForgivenessText || '';
+      }
+    }
 
     // إظهار أو إخفاء قسم التسجيل الصوتي الشخصي
     const voiceMemoSection = document.getElementById('meditationVoiceMemoSection');
@@ -1490,11 +1508,99 @@ const App = {
       voiceMemoSection.style.display = (mode === 'myvoice' || this.state?.personalVoiceAim) ? 'block' : 'none';
     }
 
+    // مزامنة حالة صندوق التكرار التأملي
+    const loopCheckbox = document.getElementById('meditationLoopCheckbox');
+    if (loopCheckbox) {
+      loopCheckbox.checked = Boolean(this.state?.meditationLoopAudio);
+    }
+
+    // استرجاع وتطبيق المدة الزمنية المفضلة لهذا الوضع
+    const savedDur = (this.state?.meditationDurations && this.state.meditationDurations[mode] !== undefined)
+      ? this.state.meditationDurations[mode]
+      : (mode === 'forgiveness' ? 'sync' : (mode === 'aim' ? 5 : 3));
+
+    this.setMeditationDuration(savedDur, false);
+
     // إعادة ضبط شكل الدائرة
     const orbEl = document.getElementById('breathingOrbElement');
     if (orbEl) orbEl.className = 'breathing-orb rest';
     const phasePill = document.getElementById('meditationPhasePill');
-    if (phasePill) phasePill.textContent = 'جاهز للبدء';
+    if (phasePill && !this.meditationAudio.syncWithAudio) {
+      phasePill.textContent = 'جاهز للبدء';
+    }
+  },
+
+  setMeditationDuration(durationSetting, doSave = true) {
+    if (this.meditationInterval) {
+      clearInterval(this.meditationInterval);
+      this.meditationInterval = null;
+      const timerBtn = document.getElementById('meditationTimerBtn');
+      if (timerBtn) timerBtn.textContent = '⏱️ بدء المؤقت';
+    }
+
+    const mode = this.meditationAudio.mode || 'aim';
+    if (!this.state.meditationDurations) this.state.meditationDurations = {};
+
+    let totalSeconds = 180;
+    let isSync = false;
+
+    if (durationSetting === 'sync') {
+      isSync = true;
+      this.meditationAudio.syncWithAudio = true;
+
+      // حساب تقديري ذكي لعدد ثواني قراءة النص بالكامل بالسرعة المختارة
+      const scriptBox = document.getElementById('meditationScriptBox');
+      const text = scriptBox ? scriptBox.innerText : '';
+      const words = text.trim().split(/\s+/).filter(Boolean).length;
+      const sentences = text.split(/[\n.،؛]+/).filter((s) => s.trim().length > 3).length;
+
+      const rate = this.state?.meditationVoiceSettings?.rate || 0.82;
+      const estimatedSec = Math.max(30, Math.round((words * 0.48 / rate) + (sentences * 1.2)));
+      totalSeconds = estimatedSec;
+
+      const phasePill = document.getElementById('meditationPhasePill');
+      if (phasePill) phasePill.textContent = '🎯 مزامنة ذكية مع القراءة';
+    } else {
+      isSync = false;
+      this.meditationAudio.syncWithAudio = false;
+      const mins = Number(durationSetting) || 3;
+      totalSeconds = mins * 60;
+    }
+
+    this.meditationDuration = totalSeconds;
+    this.meditationSecondsRemaining = totalSeconds;
+    this.meditationAudio.cycleSec = 0;
+    this.updateMeditationDigits();
+
+    // تحديث أزرار مدة الجلسة (Pills)
+    ['1', '2', '3', '5', '10', 'sync'].forEach((d) => {
+      const btn = document.getElementById('durBtn-' + d);
+      if (btn) {
+        const active = isSync ? (d === 'sync') : (Number(d) * 60 === totalSeconds || Number(d) === Number(durationSetting));
+        btn.classList.toggle('active', active);
+      }
+    });
+
+    if (doSave) {
+      this.state.meditationDurations[mode] = durationSetting;
+      this.saveState();
+      this.showToast(isSync ? '🎯 تم تفعيل وضع المزامنة التلقائية مع القراءة' : `⏱️ تم تعيين مدة الجلسة: ${Math.round(totalSeconds / 60)} دقيقة`, 'info');
+    }
+  },
+
+  onMeditationLoopToggle(checked) {
+    this.state.meditationLoopAudio = Boolean(checked);
+    this.saveState();
+    this.showToast(checked ? '🔁 تم تفعيل التكرار التأملي المستمر للصوت' : '⏹️ تم إيقاف التكرار (قراءة لمرة واحدة)', 'info');
+  },
+
+  saveCustomForgivenessText() {
+    const input = document.getElementById('customForgivenessInput');
+    const val = input ? input.value.trim() : '';
+    this.state.customForgivenessText = val;
+    this.saveState();
+    this.renderMeditationScript('forgiveness');
+    this.showToast('🕊️ تم حفظ توكيد التسامح الخاص بك بنجاح', 'success');
   },
 
   renderMeditationScript(mode) {
@@ -1539,6 +1645,27 @@ const App = {
         <p>« رابعاً: لقد كتبت بوضوح وصفاً لهدفي الرئيسي المحدد في الحياة، ولن أتوقف عن المحاولة حتى أكتسب الثقة بالنفس الكافية لتحقيقه. »</p>
         <p>« خامساً: أدرك تماماً أنه لا يمكن لأي ثروة أو مكانة أن تدوم طويلاً ما لم تُبنَ على الحقيقة والعدل؛ ولذلك لن أشارك في أي معاملة لا تعود بالنفع على جميع الأطراف. »</p>
         ${customConfSnippet}
+      `;
+    } else if (mode === 'forgiveness') {
+      const userCustom = this.state?.customForgivenessText ? `
+        <div style="margin-top: 14px; padding: 12px 16px; background: rgba(212, 175, 55, 0.1); border-right: 3px solid var(--gold-primary); border-radius: 8px;">
+          <strong style="color: var(--gold-light); font-size: 0.88rem;">✍️ توكيد تسامح إضافي خاص بك:</strong><br/>
+          « ${this.escapeHtml(this.state.customForgivenessText)} »
+        </div>
+      ` : '';
+
+      contentHtml = `
+        <h4 style="color: #34D399; margin-bottom: 8px;">🕊️ عهد التسامح الذاتي وفك قيود الماضي والتحرر المالي</h4>
+        <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 12px;">
+          أغمض عينيك، خذ نفساً عميقاً، واستشعر ثقل الماضي وهو يذوب ويتلاشى من على صدرك وأنت تستمع لهذه الكلمات بيقين:
+        </p>
+        <div style="margin: 16px 0; padding: 20px 24px; background: rgba(16, 185, 129, 0.08); border: 2px solid rgba(16, 185, 129, 0.45); border-radius: 14px; font-size: 1.15rem; line-height: 2.1; color: #FFFFFF; font-weight: 600; text-shadow: 0 2px 6px rgba(0,0,0,0.6); box-shadow: 0 0 22px rgba(16, 185, 129, 0.15);">
+          « أنا أسامح نفسي تماماً عن كل دولار تبدد من ورثي في السنوات الخمس الماضية. أسامح جهلي القديم، وأسامح تهوري الماضي. تلك الخسارات لم تكن نهاية المطاف بل كانت فاتورة تدريب قاسية دفعتها لأصل إلى انضباط اليوم. أنا أحرر الماضي وأغلق ملفاته بالكامل. »
+        </div>
+        <p style="color: var(--gold-light); font-size: 0.95rem; line-height: 1.9;">
+          « اليوم أبدأ صفحة جديدة تماماً بعقلية المتداول المحترف، منضبطاً، متقبلاً للاحتمالات، وحامياً لرأس مالي النفسي والمالي بيقين وثبات تام. »
+        </p>
+        ${userCustom}
       `;
     } else if (mode === 'premarket') {
       contentHtml = `
@@ -1907,7 +2034,7 @@ const App = {
     // استخراج الجمل المهدئة بدقة
     const sentences = rawText
       .split(/[\n.،؛]+/)
-      .map((s) => s.replace(/«|»|🎯|👑|🛡️|🛑|🫁|🎙️/g, '').trim())
+      .map((s) => s.replace(/«|»|🎯|👑|🛡️|🛑|🫁|🎙️|🕊️|🦁|✍️|📜|✅/g, '').trim())
       .filter((s) => s.length > 3);
 
     if (!sentences.length) return;
@@ -1935,8 +2062,23 @@ const App = {
     if (!this.meditationAudio.isPlayingVoice) return;
     const sentences = this.meditationAudio.synthSentences || [];
     if (this.meditationAudio.currentUtteranceIdx >= sentences.length) {
-      this.stopMeditationVoiceGuide();
-      return;
+      if (this.meditationAudio.syncWithAudio) {
+        // إذا كان وضع المزامنة مفعلاً، اكتمال القراءة يعني اكتمال الجلسة بنجاح وفوراً
+        this.stopMeditationVoiceGuide();
+        this.playGentleChime();
+        this.completeMeditationSession();
+        return;
+      } else if (this.state?.meditationLoopAudio && this.meditationSecondsRemaining > 5) {
+        // إذا كان خيار التكرار التأملي مفعلاً والمؤقت لم ينتهِ، أعد القراءة بهدوء
+        this.meditationAudio.currentUtteranceIdx = 0;
+        this.meditationAudio.synthTimeout = setTimeout(() => {
+          this.speakNextMeditationSentence();
+        }, 2000);
+        return;
+      } else {
+        this.stopMeditationVoiceGuide();
+        return;
+      }
     }
 
     const textToSpeak = sentences[this.meditationAudio.currentUtteranceIdx];
@@ -4395,6 +4537,9 @@ ${recentHistory}
     merged.personalVoiceAim = r.personalVoiceAim || l.personalVoiceAim || '';
     merged.meditationVoiceSettings = { ...(def.meditationVoiceSettings || {}), ...(l.meditationVoiceSettings || {}), ...(r.meditationVoiceSettings || {}) };
     merged.customConfidenceFormula = r.customConfidenceFormula || l.customConfidenceFormula || '';
+    merged.customForgivenessText = r.customForgivenessText || l.customForgivenessText || '';
+    merged.meditationDurations = { ...(def.meditationDurations || {}), ...(l.meditationDurations || {}), ...(r.meditationDurations || {}) };
+    merged.meditationLoopAudio = (r.meditationLoopAudio !== undefined) ? r.meditationLoopAudio : ((l.meditationLoopAudio !== undefined) ? l.meditationLoopAudio : false);
     merged.strategyPlaybook = { ...(def.strategyPlaybook || {}), ...(l.strategyPlaybook || {}), ...(r.strategyPlaybook || {}) };
     merged.traderPsychProfile = { ...(def.traderPsychProfile || {}), ...(l.traderPsychProfile || {}), ...(r.traderPsychProfile || {}) };
 
